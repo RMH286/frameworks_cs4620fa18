@@ -52,10 +52,11 @@ public class MeshGen {
     private static OBJMesh generateCylinder(int n) {
         OBJMesh mesh = new OBJMesh();
         double deltaAngle = 2 * Math.PI / n;
-        double currAngle = 0;
-        double sideTextureAngle = (currAngle + Math.PI) % (2*Math.PI);
+        double currAngle = Math.PI;
+        double sideTextureAngle = currAngle - Math.PI;
         float sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
-        double capTextureAngle = (currAngle + Math.PI / 4) % (2*Math.PI);
+        double capTextureAngleTop = (currAngle - Math.PI / 2);
+        double capTextureAngleBottom = (currAngle + Math.PI / 2);
 
         Vector2 topCapTextureOffset = new Vector2(0.75f, 0.75f);
         Vector2 bottomCapTextureOffset = new Vector2(0.25f, 0.75f);
@@ -100,26 +101,24 @@ public class MeshGen {
         int v1CapTexturePos;
         int v2CapTexturePos;
         int v3CapTexturePos = 0;
-        v1 = new Vector3((float) Math.sin(currAngle), 1f, (float) Math.cos(currAngle));
-        v1Normal = new Vector3((float) Math.sin(currAngle), 0f, (float) Math.cos(currAngle)).normalize();
+        v1 = new Vector3((float) -Math.sin(currAngle), 1f, (float) -Math.cos(currAngle));
+        v1Normal = new Vector3((float) -Math.sin(currAngle), 0f, (float) -Math.cos(currAngle)).normalize();
         v1SideTexture = new Vector2(sideTextureVal, 0.5f);
-        v1CapTexture = new Vector2((float) Math.cos(capTextureAngle), (float) Math.sin(capTextureAngle)).normalize().div(4f).add(topCapTextureOffset);
+        v1CapTexture = new Vector2((float) Math.cos(capTextureAngleTop), (float) Math.sin(capTextureAngleTop)).normalize().div(4f).add(topCapTextureOffset);
         //currAngle += deltaAngle;
         //sideTextureAngle = (currAngle + Math.PI) % (2*Math.PI);
         //sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
         //capTextureAngle = (currAngle + Math.PI / 4) % 2*Math.PI;
-        v2 = new Vector3((float) Math.sin(currAngle), -1f, (float) Math.cos(currAngle));
-        v2Normal = new Vector3((float) Math.sin(currAngle), 0f, (float) Math.cos(currAngle)).normalize();
+        v2 = new Vector3((float) -Math.sin(currAngle), -1f, (float) -Math.cos(currAngle));
         v2SideTexture = new Vector2(sideTextureVal, 0f);
-        v2CapTexture = new Vector2((float) Math.cos(capTextureAngle), (float) Math.sin(capTextureAngle)).normalize().div(4f).add(bottomCapTextureOffset);
+        v2CapTexture = new Vector2((float) Math.cos(capTextureAngleBottom), (float) Math.sin(capTextureAngleBottom)).normalize().div(4f).add(bottomCapTextureOffset);
         mesh.positions.add(v1);
         v1Pos = mesh.positions.size() - 1;
         mesh.positions.add(v2);
         v2Pos = mesh.positions.size() - 1;
         mesh.normals.add(v1Normal);
         v1NormalPos = mesh.normals.size() - 1;
-        mesh.normals.add(v2Normal);
-        v2NormalPos = mesh.normals.size() - 1;
+        v2NormalPos = v1NormalPos;
         mesh.uvs.add(v1SideTexture);
         v1SideTexturePos = mesh.uvs.size() - 1;
         mesh.uvs.add(v2SideTexture);
@@ -145,11 +144,12 @@ public class MeshGen {
             currAngle += deltaAngle;
             sideTextureAngle = (currAngle + Math.PI) % (2*Math.PI);
             sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
-            capTextureAngle = (currAngle + Math.PI / 4) % (2*Math.PI);
-            v3 = new Vector3((float) Math.sin(currAngle), 1f, (float) Math.cos(currAngle));
-            v3Normal = new Vector3((float) Math.sin(currAngle), 0f, (float) Math.cos(currAngle)).normalize();
+            capTextureAngleTop = (currAngle - Math.PI / 2);
+            capTextureAngleBottom = (currAngle + Math.PI / 2);
+            v3 = new Vector3((float) -Math.sin(currAngle), 1f, (float) -Math.cos(currAngle));
+            v3Normal = new Vector3((float) -Math.sin(currAngle), 0f, (float) -Math.cos(currAngle)).normalize();
             v3SideTexture = new Vector2(sideTextureVal, 0.5f);
-            v3CapTexture = new Vector2((float) Math.cos(capTextureAngle), (float) Math.sin(capTextureAngle)).normalize().div(4f).add(topCapTextureOffset);
+            v3CapTexture = new Vector2((float) Math.cos(capTextureAngleTop), (float) Math.sin(capTextureAngleTop)).normalize().div(4f).add(topCapTextureOffset);
             mesh.positions.add(v3);
             v3Pos = mesh.positions.size() - 1;
             mesh.normals.add(v3Normal);
@@ -199,10 +199,10 @@ public class MeshGen {
             //sideTextureAngle = (currAngle + Math.PI) % (2*Math.PI);
             //sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
             //capTextureAngle = (currAngle + Math.PI / 4) % (2*Math.PI);
-            v3 = new Vector3((float)Math.sin(currAngle), -1f, (float) Math.cos(currAngle));
+            v3 = new Vector3((float) -Math.sin(currAngle), -1f, (float) -Math.cos(currAngle));
             //v3Normal = new Vector3((float) Math.sin(currAngle), 0f, (float) Math.cos(currAngle)).normalize();
             v3SideTexture = new Vector2(sideTextureVal, 0f);
-            v3CapTexture = new Vector2((float) Math.cos(capTextureAngle), (float) Math.sin(capTextureAngle)).normalize().div(4f).add(bottomCapTextureOffset);
+            v3CapTexture = new Vector2((float) Math.cos(capTextureAngleBottom), (float) Math.sin(capTextureAngleBottom)).normalize().div(4f).add(bottomCapTextureOffset);
             mesh.positions.add(v3);
             v3Pos = mesh.positions.size() - 1;
             //mesh.normals.add(v3Normal);
@@ -250,6 +250,14 @@ public class MeshGen {
         }
 
         // stitch final triangles
+
+        Vector2 final1SideTexture = new Vector2(1, 0.5f);
+        mesh.uvs.add(final1SideTexture);
+        int final1SideTexturePos = mesh.uvs.size() - 1;
+        Vector2 final2SideTexture = new Vector2(1, 0f);
+        mesh.uvs.add(final2SideTexture);
+        int final2SideTexturePos = mesh.uvs.size() - 1;
+
         // form a new face on upper cap (+y)
         face = new OBJFace(3, true, true);
         face.positions[0] = v1Pos;
@@ -267,12 +275,12 @@ public class MeshGen {
         face.positions[0] = v1Pos;
         face.positions[1] = v2Pos;
         face.positions[2] = start1Pos;
-        face.normals[0] = v2NormalPos;
-        face.normals[1] = v3NormalPos;
+        face.normals[0] = v1NormalPos;
+        face.normals[1] = v2NormalPos;
         face.normals[2] = start1NormalPos;
         face.uvs[0] = v1SideTexturePos;
         face.uvs[1] = v2SideTexturePos;
-        face.uvs[2] = start1SideTexturePos;
+        face.uvs[2] = final1SideTexturePos;
         mesh.faces.add(face);
 
         face = new OBJFace(3, true, true);
@@ -294,8 +302,8 @@ public class MeshGen {
         face.normals[0] = start2NormalPos;
         face.normals[1] = start1NormalPos;
         face.normals[2] = v2NormalPos;
-        face.uvs[0] = start2SideTexturePos;
-        face.uvs[1] = start1SideTexturePos;
+        face.uvs[0] = final2SideTexturePos;
+        face.uvs[1] = final1SideTexturePos;
         face.uvs[2] = v2SideTexturePos;
         mesh.faces.add(face);
 
