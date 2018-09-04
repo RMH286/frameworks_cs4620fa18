@@ -36,6 +36,7 @@ public class MeshGen {
                         mesh.writeOBJ(out_obj);
                     } catch (IOException e) {
                         System.out.println("Unable to write .obj file: " + e.getMessage());
+                        return;
                     }
                 }
             } else if (geometry.equals("sphere")) {
@@ -45,11 +46,25 @@ public class MeshGen {
                         mesh.writeOBJ(out_obj);
                     } catch (IOException e) {
                         System.out.println("Unable to write .obj file: " + e.getMessage());
+                        return;
                     }
                 }
             }
         } else if (mode.equals("-i")) {
-
+            OBJMesh mesh = null;
+            try {
+                mesh = smooth(in_obj);
+            } catch (IOException e) {
+                System.out.println("Unable to read .obj file: " + e.getMessage());
+                return;
+            }
+            if (mesh.isValid(true)) {
+                try {
+                    mesh.writeOBJ(out_obj);
+                } catch (IOException e) {
+                    System.out.println("Unable to write .obj file: " + e.getMessage());
+                }
+            }
         }
 
         return;
@@ -363,11 +378,11 @@ public class MeshGen {
         int topVertex = mesh.positions.size()-2;
         int bottomVertex = mesh.positions.size()-1;
 
-        mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)0)));
-        mesh.uvs.add(new Vector2((float).5,(float)0));
+        //mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)0)));
+        //mesh.uvs.add(new Vector2((float).5,(float)0));
 
-        int topUV = mesh.uvs.size()-2;
-        int botUV = mesh.uvs.size()-1;
+        //int topUV = mesh.uvs.size()-2;
+        //int botUV = mesh.uvs.size()-1;
 
         //keep track of the last row of position vectors so they can be reused.
         int[] lastP = new int[n];
@@ -521,7 +536,12 @@ public class MeshGen {
             face1.uvs[1] = uv2t;
             // mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)0)));
             // face1.uvs[2] = mesh.uvs.size()-1;
-            face1.uvs[2] = topUV;
+            Vector2 topUV = mesh.uvs.get(uv1t).clone();
+            topUV.add(mesh.uvs.get(uv2t));
+            topUV.div(2f);
+            topUV.y = 1;
+            mesh.uvs.add(topUV);
+            face1.uvs[2] = mesh.uvs.size() - 1;
 
 
             OBJFace face2 = new OBJFace(3, true, false);
@@ -533,7 +553,12 @@ public class MeshGen {
             face2.uvs[1] = uv1b;
             // mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)1)));
             // face2.uvs[2] = mesh.uvs.size()-1;
-            face2.uvs[2] = botUV; 
+            Vector2 botUV = mesh.uvs.get(uv1t).clone();
+            botUV.add(mesh.uvs.get(uv2t));
+            botUV.div(2f);
+            botUV.y = 0;
+            mesh.uvs.add(botUV);
+            face2.uvs[2] = mesh.uvs.size() - 1;
             
             mesh.faces.add(face1);
             mesh.faces.add(face2);
@@ -542,6 +567,38 @@ public class MeshGen {
         }
 
 
+
+        return mesh;
+    }
+
+    private static OBJMesh smooth(String inOBJ) throws IOException, OBJMesh.OBJFileFormatException {
+        OBJMesh mesh = new OBJMesh();
+        mesh.parseOBJ(inOBJ);
+
+        mesh.normals.clear();
+        for (int i = 0; i < mesh.positions.size(); i++) {
+            mesh.normals.add(new Vector3(0, 0, 0));
+        }
+
+        for (OBJFace face : mesh.faces) {
+            if (face.normals == null) {
+                face.normals = new int[face.positions.length];
+            }
+            Vector3 v1 = mesh.positions.get(face.positions[0]).clone();
+            Vector3 v2 = mesh.positions.get(face.positions[1]).clone();
+            Vector3 v3 = mesh.positions.get(face.positions[2]).clone();
+            Vector3 deltaV1 = v2.sub(v1);
+            Vector3 deltaV2 = v3.sub(v1);
+            Vector3 faceNormal = (deltaV1.cross(deltaV2)).normalize();
+            for (int i = 0; i < face.positions.length; i++) {
+                face.normals[i] = face.positions[i];
+                mesh.normals.set(face.normals[i], mesh.normals.get(face.normals[i]).add(faceNormal));
+            }
+        }
+
+        for (Vector3 vertex : mesh.normals) {
+            vertex.normalize();
+        }
 
         return mesh;
     }
