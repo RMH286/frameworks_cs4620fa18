@@ -73,6 +73,9 @@ public class MeshGen {
 
     private static OBJMesh generateCylinder(int n) {
         OBJMesh mesh = new OBJMesh();
+
+
+        // angles around the cylinder
         double deltaAngle = 2 * Math.PI / n;
         double currAngle = Math.PI;
         double sideTextureAngle = currAngle - Math.PI;
@@ -80,9 +83,11 @@ public class MeshGen {
         double capTextureAngleTop = (currAngle - Math.PI / 2);
         double capTextureAngleBottom = (currAngle + Math.PI / 2);
 
+        // offset for the cap textures
         Vector2 topCapTextureOffset = new Vector2(0.75f, 0.75f);
         Vector2 bottomCapTextureOffset = new Vector2(0.25f, 0.75f);
 
+        // top and bottom center vertices
         Vector3 topVertex = new Vector3(0f, 1f, 0f);
         Vector3 bottomVertex = new Vector3(0f, -1f, 0f);
         mesh.positions.add(topVertex);
@@ -98,7 +103,7 @@ public class MeshGen {
         mesh.uvs.add(bottomCapTextureOffset);
         int bottomCapTexturePos = mesh.uvs.size() - 1;
 
-        // start at seam (z = 1)
+        // three vertices to form face
         Vector3 v1;
         Vector3 v2;
         Vector3 v3;
@@ -127,10 +132,6 @@ public class MeshGen {
         v1Normal = new Vector3((float) -Math.sin(currAngle), 0f, (float) -Math.cos(currAngle)).normalize();
         v1SideTexture = new Vector2(sideTextureVal, 0.5f);
         v1CapTexture = new Vector2((float) Math.cos(capTextureAngleTop), (float) Math.sin(capTextureAngleTop)).normalize().div(4f).add(topCapTextureOffset);
-        //currAngle += deltaAngle;
-        //sideTextureAngle = (currAngle + Math.PI) % (2*Math.PI);
-        //sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
-        //capTextureAngle = (currAngle + Math.PI / 4) % 2*Math.PI;
         v2 = new Vector3((float) -Math.sin(currAngle), -1f, (float) -Math.cos(currAngle));
         v2SideTexture = new Vector2(sideTextureVal, 0f);
         v2CapTexture = new Vector2((float) Math.cos(capTextureAngleBottom), (float) Math.sin(capTextureAngleBottom)).normalize().div(4f).add(bottomCapTextureOffset);
@@ -150,6 +151,7 @@ public class MeshGen {
         mesh.uvs.add(v2CapTexture);
         v2CapTexturePos = mesh.uvs.size() - 1;
 
+        // start locations used for stitching together last triangles
         int start1Pos = v1Pos;
         int start2Pos = v2Pos;
         int start1NormalPos = v1NormalPos;
@@ -168,6 +170,7 @@ public class MeshGen {
             sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
             capTextureAngleTop = (currAngle - Math.PI / 2);
             capTextureAngleBottom = (currAngle + Math.PI / 2);
+
             v3 = new Vector3((float) -Math.sin(currAngle), 1f, (float) -Math.cos(currAngle));
             v3Normal = new Vector3((float) -Math.sin(currAngle), 0f, (float) -Math.cos(currAngle)).normalize();
             v3SideTexture = new Vector2(sideTextureVal, 0.5f);
@@ -183,28 +186,16 @@ public class MeshGen {
 
             // form a new face on upper cap (+y)
             face = new OBJFace(3, true, true);
-            face.positions[0] = v1Pos;
-            face.positions[1] = v3Pos;
-            face.positions[2] = topVertexPos;
-            face.normals[0] = topNormalPos;
-            face.normals[1] = topNormalPos;
-            face.normals[2] = topNormalPos;
-            face.uvs[0] = v1CapTexturePos;
-            face.uvs[1] = v3CapTexturePos;
-            face.uvs[2] = topCapTexturePos;
+            face.setVertex(0, v1Pos, v1CapTexturePos, topNormalPos);
+            face.setVertex(1, v3Pos, v3CapTexturePos, topNormalPos);
+            face.setVertex(2, topVertexPos, topCapTexturePos, topNormalPos);
             mesh.faces.add(face);
 
             // form a new face on side of cylinder pointing down (-y)
             face = new OBJFace(3, true, true);
-            face.positions[0] = v1Pos;
-            face.positions[1] = v2Pos;
-            face.positions[2] = v3Pos;
-            face.normals[0] = v1NormalPos;
-            face.normals[1] = v2NormalPos;
-            face.normals[2] = v3NormalPos;
-            face.uvs[0] = v1SideTexturePos;
-            face.uvs[1] = v2SideTexturePos;
-            face.uvs[2] = v3SideTexturePos;
+            face.setVertex(0, v1Pos, v1SideTexturePos, v1NormalPos);
+            face.setVertex(1, v2Pos, v2SideTexturePos, v2NormalPos);
+            face.setVertex(2, v3Pos, v3SideTexturePos, v3NormalPos);
             mesh.faces.add(face);
 
             v1Pos = v2Pos;
@@ -217,18 +208,11 @@ public class MeshGen {
             v2CapTexturePos = v3CapTexturePos;
 
             // add next vertex on lower cap (-y)
-            //currAngle += deltaAngle;
-            //sideTextureAngle = (currAngle + Math.PI) % (2*Math.PI);
-            //sideTextureVal = (float) (sideTextureAngle / (2 * Math.PI));
-            //capTextureAngle = (currAngle + Math.PI / 4) % (2*Math.PI);
             v3 = new Vector3((float) -Math.sin(currAngle), -1f, (float) -Math.cos(currAngle));
-            //v3Normal = new Vector3((float) Math.sin(currAngle), 0f, (float) Math.cos(currAngle)).normalize();
             v3SideTexture = new Vector2(sideTextureVal, 0f);
             v3CapTexture = new Vector2((float) Math.cos(capTextureAngleBottom), (float) Math.sin(capTextureAngleBottom)).normalize().div(4f).add(bottomCapTextureOffset);
             mesh.positions.add(v3);
             v3Pos = mesh.positions.size() - 1;
-            //mesh.normals.add(v3Normal);
-            //v3NormalPos = mesh.normals.size() - 1;
             v3NormalPos = v2NormalPos;
             mesh.uvs.add(v3SideTexture);
             v3SideTexturePos = mesh.uvs.size() - 1;
@@ -237,28 +221,16 @@ public class MeshGen {
 
             // form a new face on lower cap (-y)
             face = new OBJFace(3, true, true);
-            face.positions[0] = v3Pos;
-            face.positions[1] = v1Pos;
-            face.positions[2] = bottomVertexPos;
-            face.normals[0] = bottomNormalPos;
-            face.normals[1] = bottomNormalPos;
-            face.normals[2] = bottomNormalPos;
-            face.uvs[0] = v3CapTexturePos;
-            face.uvs[1] = v1CapTexturePos;
-            face.uvs[2] = bottomCapTexturePos;
+            face.setVertex(0, v3Pos, v3CapTexturePos, bottomNormalPos);
+            face.setVertex(1, v1Pos, v1CapTexturePos, bottomNormalPos);
+            face.setVertex(2, bottomVertexPos, bottomCapTexturePos, bottomNormalPos);
             mesh.faces.add(face);
 
             // form a new face on side of cylinder pointing up (+y)
             face = new OBJFace(3, true, true);
-            face.positions[0] = v3Pos;
-            face.positions[1] = v2Pos;
-            face.positions[2] = v1Pos;
-            face.normals[0] = v3NormalPos;
-            face.normals[1] = v2NormalPos;
-            face.normals[2] = v1NormalPos;
-            face.uvs[0] = v3SideTexturePos;
-            face.uvs[1] = v2SideTexturePos;
-            face.uvs[2] = v1SideTexturePos;
+            face.setVertex(0, v3Pos, v3SideTexturePos, v3NormalPos);
+            face.setVertex(1, v2Pos, v2SideTexturePos, v2NormalPos);
+            face.setVertex(2, v1Pos, v1SideTexturePos, v1NormalPos);
             mesh.faces.add(face);
 
             v1Pos = v2Pos;
@@ -280,65 +252,38 @@ public class MeshGen {
         mesh.uvs.add(final2SideTexture);
         int final2SideTexturePos = mesh.uvs.size() - 1;
 
-        // form a new face on upper cap (+y)
         face = new OBJFace(3, true, true);
-        face.positions[0] = v1Pos;
-        face.positions[1] = start1Pos;
-        face.positions[2] = topVertexPos;
-        face.normals[0] = topNormalPos;
-        face.normals[1] = topNormalPos;
-        face.normals[2] = topNormalPos;
-        face.uvs[0] = v1CapTexturePos;
-        face.uvs[1] = start1CapTexturePos;
-        face.uvs[2] = topCapTexturePos;
+        face.setVertex(0, v1Pos, v1CapTexturePos, topNormalPos);
+        face.setVertex(1, start1Pos, start1CapTexturePos, topNormalPos);
+        face.setVertex(2, topVertexPos, topCapTexturePos, topNormalPos);
         mesh.faces.add(face);
 
         face = new OBJFace(3, true, true);
-        face.positions[0] = v1Pos;
-        face.positions[1] = v2Pos;
-        face.positions[2] = start1Pos;
-        face.normals[0] = v1NormalPos;
-        face.normals[1] = v2NormalPos;
-        face.normals[2] = start1NormalPos;
-        face.uvs[0] = v1SideTexturePos;
-        face.uvs[1] = v2SideTexturePos;
-        face.uvs[2] = final1SideTexturePos;
+        face.setVertex(0, v1Pos, v1SideTexturePos, v1NormalPos);
+        face.setVertex(1, v2Pos, v2SideTexturePos, v2NormalPos);
+        face.setVertex(2, start1Pos, final1SideTexturePos, start1NormalPos);
         mesh.faces.add(face);
 
         face = new OBJFace(3, true, true);
-        face.positions[0] = start2Pos;
-        face.positions[1] = v2Pos;
-        face.positions[2] = bottomVertexPos;
-        face.normals[0] = bottomNormalPos;
-        face.normals[1] = bottomNormalPos;
-        face.normals[2] = bottomNormalPos;
-        face.uvs[0] = start2CapTexturePos;
-        face.uvs[1] = v2CapTexturePos;
-        face.uvs[2] = bottomCapTexturePos;
+        face.setVertex(0, start2Pos, start2CapTexturePos, bottomNormalPos);
+        face.setVertex(1, v2Pos, v2CapTexturePos, bottomNormalPos);
+        face.setVertex(2, bottomVertexPos, bottomCapTexturePos, bottomNormalPos);
         mesh.faces.add(face);
 
         face = new OBJFace(3, true, true);
-        face.positions[0] = start2Pos;
-        face.positions[1] = start1Pos;
-        face.positions[2] = v2Pos;
-        face.normals[0] = start2NormalPos;
-        face.normals[1] = start1NormalPos;
-        face.normals[2] = v2NormalPos;
-        face.uvs[0] = final2SideTexturePos;
-        face.uvs[1] = final1SideTexturePos;
-        face.uvs[2] = v2SideTexturePos;
+        face.setVertex(0, start2Pos, final2SideTexturePos, start2NormalPos);
+        face.setVertex(1, start1Pos, final1SideTexturePos, start1NormalPos);
+        face.setVertex(2, v2Pos, v2SideTexturePos, v2NormalPos);
         mesh.faces.add(face);
 
         return mesh;
     }
 
-    //convert spherical to cartesian corrdinates
     private static Vector3 sphereToCart(Vector3 sph){
         float r = sph.get(0);
         float theta = sph.get(1);
         float phi = sph.get(2);
         return new Vector3((float)((Math.sin(theta)*r)*(Math.sin(phi)*r)),(float)(Math.cos(phi)*r),(float)((Math.sin(phi)*r)*(Math.cos(theta)*r)));
-    	//return new Vector3((float)((Math.sin(theta)*r)),(float)(Math.cos(phi)*r),(float)(Math.cos(theta)*r));
     }
 
     private static Vector2 sphereToUV(Vector3 sph){
@@ -351,14 +296,12 @@ public class MeshGen {
             u = normalizedTheta - 1;
         }
         else if(normalizedTheta == 1){
-        	u = 0;
+            u = 0;
         }
         else{
             u = normalizedTheta;
         }
         float v = (float)(1-(phi/Math.PI));
-
-        System.out.println("(" + u + " , " + v +")");
 
         return new Vector2(u,v);
     }
@@ -367,14 +310,14 @@ public class MeshGen {
     private static OBJMesh generateSphere(int n, int m) {
         OBJMesh mesh = new OBJMesh();
 
-        //phi delta
+        // phi delta
         double dp = Math.PI/m;
-        //theta delta
+        // theta delta
         double dt = (2*Math.PI)/n;
-        //start at meridian and south most lattitude
-        //phi start
+        // start at meridian and south most lattitude
+        // phi start
         double cp = Math.PI*((m-1.0)/m);
-        //theta start
+        // theta start
         double ct = Math.PI;
 
         mesh.positions.add(sphereToCart(new Vector3(1,0,0)));
@@ -387,18 +330,12 @@ public class MeshGen {
         int topVertexN = mesh.normals.size()-2;
         int bottomVertexN = mesh.normals.size()-1;
 
-        //mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)0)));
-        //mesh.uvs.add(new Vector2((float).5,(float)0));
-
-        // int topUV = mesh.uvs.size()-2;
-        // int botUV = mesh.uvs.size()-1;
-
-        //keep track of the last row of position vectors so they can be reused.
+        // keep track of the last row of position vectors so they can be reused.
         int[] lastP = new int[n];
         int[] lastUV = new int[n];
         int[] lastN = new int[n];
 
-        //botom and top ring
+        // botom and top ring
         int[] bottomring = new int[n];
         int[] topring = new int[n];
 
@@ -414,9 +351,9 @@ public class MeshGen {
         mesh.uvs.add(new Vector2(1,(float)(1-(cp/Math.PI))));
         int lastText = mesh.uvs.size()-1;
 
-        //create southmost latt of vertecies
+        // create southmost latt of vertecies
         for(int i = 0; i < n; i++){
-            //posistion
+            // posistion
             Vector3 posVec = new Vector3(1,(float)ct,(float)cp);
             mesh.positions.add(sphereToCart(posVec));
             lastP[i] = mesh.positions.size()-1;
@@ -433,10 +370,9 @@ public class MeshGen {
             ct += dt;
         }
 
-        //create faces
-        //from the southmost latt to north most latt with two triangles per square
+        // create faces from the southmost latt to north most latt with two triangles per square
         for(int i = 0; i < (m-2); i++){
-            //update cordinates
+            // update cordinates
             ct = Math.PI;
             cp -= dp;
             int first = lastP[0];
@@ -446,7 +382,7 @@ public class MeshGen {
             mesh.uvs.add(sphereToUV(new Vector3(1,(float)(ct),(float)cp)));
             mesh.normals.add(sphereToCart(new Vector3(1,(float)(ct),(float)cp)));
             for(int j = 0; j < n; j++){
-                //update vector positions
+                // update vector positions
                 int v1;
                 int v2;
                 int v3;
@@ -491,7 +427,7 @@ public class MeshGen {
 
                     mesh.uvs.add(new Vector2(1,(float)(1-(cp/Math.PI))));
                     uv3 = mesh.uvs.size()-1;
-                    //mesh.uvs.add(new Vector2(1,(float)(1-((cp + dp)/Math.PI))));
+                    // mesh.uvs.add(new Vector2(1,(float)(1-((cp + dp)/Math.PI))));
                     uv4 = lastText;
                     lastText = uv3;
                     if(j == 0){
@@ -500,62 +436,42 @@ public class MeshGen {
                     topFinishUV = uv3;
                 }
 
-                //update lastP
+                // update lastP
                 lastP[j] = v1;
-                //fill top ring
+                // fill top ring
                 topring[j] = v1;
 
-                //update lastUV
+                // update lastUV
                 lastUV[j] = uv1;
-                //fill tUV
+                // fill tUV
                 tUV[j] = uv1;
 
-                //update lastN
+                // update lastN
                 lastN[j] = nv1;
-                //fill tN
+                // fill tN
                 tN[j] = nv1;
 
-                //create face
-
-
+                // create face
                 OBJFace face1 = new OBJFace(3, true, true);
-                face1.positions[0] = v1;
-                face1.positions[1] = v2;
-                face1.positions[2] = v4;
-
-                face1.uvs[0] = uv1;
-                face1.uvs[1] = uv2;
-                face1.uvs[2] = uv4;
-
-                face1.normals[0] = nv1;
-                face1.normals[1] = nv2;
-                face1.normals[2] = nv4;
+                face1.setVertex(0, v1, uv1, nv1);
+                face1.setVertex(1, v2, uv2, nv2);
+                face1.setVertex(2, v4, uv4, nv4);
 
                 OBJFace face2 = new OBJFace(3, true, true);
-                face2.positions[0] = v1;
-                face2.positions[1] = v4;
-                face2.positions[2] = v3;
-
-                face2.uvs[0] = uv1;
-                face2.uvs[1] = uv4;
-                face2.uvs[2] = uv3;
-
-                face2.normals[0] = nv1;
-                face2.normals[1] = nv4;
-                face2.normals[2] = nv3;
+                face2.setVertex(0, v1, uv1, nv1);
+                face2.setVertex(1, v4, uv4, nv4);
+                face2.setVertex(2, v3, uv3, nv3);
 
                 mesh.faces.add(face1);
                 mesh.faces.add(face2);
 
                 ct += dt;
-
             }
         }
 
-        //create top and bottom disk
+        // create top and bottom disk
         for(int i = 0; i < n; i++){
-            //ct = Math.PI;
-
+            // ct = Math.PI;
             int v1t;
             int v2t;
             int v1b;
@@ -571,8 +487,6 @@ public class MeshGen {
             int nv1b;
             int nv2b; 
 
-
-
             if(i+1 == n){
                 v2t = topring[0];
                 v2b = bottomring[0]; 
@@ -580,12 +494,6 @@ public class MeshGen {
                 nv2t = tN[0];
                 nv2b = bN[0]; 
 
-
-                //float cpt = mesh.uvs.get(tUV[0]).get(1);
-                //float cpb = mesh.uvs.get(bUV[0]).get(1);
-
-                //mesh.uvs.add(new Vector2(1,cpt));
-                //mesh.uvs.add(new Vector2(1,cpb));
                 uv2t = topFinishUV;
                 uv2b = bottomFinishUV;
             }
@@ -599,6 +507,7 @@ public class MeshGen {
                 uv2t = tUV[i+1];
                 uv2b = bUV[i+1];
             }
+
             v1t = topring[i];
             v1b = bottomring[i];
 
@@ -608,55 +517,31 @@ public class MeshGen {
             uv1t = tUV[i];
             uv1b = bUV[i];
 
-            OBJFace face1 = new OBJFace(3, true, true);
-            face1.positions[0] = v1t;
-            face1.positions[1] = v2t;
-            face1.positions[2] = topVertex;
-
-            face1.normals[0] = nv1t;
-            face1.normals[1] = nv2t;
-            face1.normals[2] = topVertexN;
-
-            face1.uvs[0] = uv1t;
-            face1.uvs[1] = uv2t;
-            // mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)0)));
-            // face1.uvs[2] = mesh.uvs.size()-1;
-
             Vector2 topUV = mesh.uvs.get(uv1t).clone();
             topUV.add(mesh.uvs.get(uv2t));
             topUV.div(2f);
             topUV.y = 1;
             mesh.uvs.add(topUV);
-            face1.uvs[2] = mesh.uvs.size() - 1;
 
+            OBJFace face1 = new OBJFace(3, true, true);
+            face1.setVertex(0, v1t, uv1t, nv1t);
+            face1.setVertex(1, v2t, uv2t, nv2t);
+            face1.setVertex(2, topVertex, mesh.uvs.size()-1, topVertexN);
 
-            OBJFace face2 = new OBJFace(3, true, true);
-            face2.positions[0] = v2b;
-            face2.positions[1] = v1b;
-            face2.positions[2] = bottomVertex;
-
-            face2.normals[0] = nv2b;
-            face2.normals[1] = nv1b;
-            face2.normals[2] = bottomVertexN;
-
-            face2.uvs[0] = uv2b;
-            face2.uvs[1] = uv1b;
-            // mesh.uvs.add(sphereToUV(new Vector3(1,(float)ct,(float)1)));
-            // face2.uvs[2] = mesh.uvs.size()-1;
             Vector2 botUV = mesh.uvs.get(uv1t).clone();
             botUV.add(mesh.uvs.get(uv2t));
             botUV.div(2f);
             botUV.y = 0;
             mesh.uvs.add(botUV);
-            face2.uvs[2] = mesh.uvs.size() - 1;
-            
+
+            OBJFace face2 = new OBJFace(3, true, true);
+            face2.setVertex(0, v2b, uv2b, nv2b);
+            face2.setVertex(1, v1b, uv1b, nv1b);
+            face2.setVertex(2, bottomVertex, mesh.uvs.size()-1, bottomVertexN);
+
             mesh.faces.add(face1);
             mesh.faces.add(face2);
-
-            //ct += dt;
         }
-
-
 
         return mesh;
     }
