@@ -145,7 +145,20 @@ public class Scene {
 		//          4) If anyIntersection is true, return immediately.
 		//		    5) Set outRecord to the IntersectionRecord of the first object hit.
 		//		    6) If there was an intersection, return true; otherwise return false.
-
-		return false;
+	    IntersectionRecord tempRecord = new IntersectionRecord();
+	    Ray tempRay = new Ray(rayIn);
+	    boolean intersection = false;
+	    for (Surface s : this.surfaces) {
+	        if (s.intersect(tempRecord, tempRay)) {
+	            if (anyIntersection) {
+	                return true;
+	            } else {
+	                intersection = true;
+	                outRecord.set(tempRecord);
+	                tempRay.end = outRecord.t;
+	            }
+	        }
+	    }
+	    return intersection;
 	}
 }
