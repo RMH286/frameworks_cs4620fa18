@@ -12,15 +12,15 @@ import ray1.OBJFace;
  * @author ags
  */
 public class Triangle extends Surface {
-  /** The normal vector of this triangle, if vertex normals are not specified */
+   /** The normal vector of this triangle, if vertex normals are not specified */
   Vector3 norm;
-  
+
   /** The mesh that contains this triangle */
   Mesh owner;
-  
+
   /** The face that contains this triangle */
   OBJFace face = null;
-  
+
   double a, b, c, d, e, f;
   public Triangle(Mesh owner, OBJFace face, Shader shader) {
     this.owner = owner;
@@ -41,11 +41,11 @@ public class Triangle extends Surface {
     a = v0.x-v1.x;
     b = v0.y-v1.y;
     c = v0.z-v1.z;
-    
+
     d = v0.x-v2.x;
     e = v0.y-v2.y;
     f = v0.z-v2.z;
-    
+
     this.setShader(shader);
   }
 
@@ -61,8 +61,33 @@ public class Triangle extends Surface {
    */
   public boolean intersect(IntersectionRecord outRecord, Ray rayIn) {
     // TODO#A2: fill in this function.
-    
-	return false;
+
+    double g = rayIn.direction.x;
+    double h = rayIn.direction.y;
+    double i = rayIn.direction.z;
+
+    Vector3 v0 = this.owner.getMesh().getPosition(face, 0);
+    double j = v0.x - rayIn.origin.x;
+    double k = v0.y - rayIn.origin.y;
+    double l = v0.z - rayIn.origin.z;
+
+    double m = a*(e*i - h*f) + b*(g*f - d*i) + c*(d*h - e*g);
+    double t = -(f*(a*k - j*b) + h*(j*c - a*l) + d*(b*l - k*c)) / m;
+    double gamma = (i*(a*k - j*b) + h*(j*c - a*l) + g*(b*l - k*c)) / m;
+
+    if (gamma < 0 || gamma > 1) {
+      return false;
+    }
+
+    double beta = (j*(e*i - h*f) + k*(g*f - d*i) + l*(d*h - e*g)) / m;
+
+    if (beta < 0 || beta > (1-gamma)) {
+      return false;
+    }
+
+    // USE BARYCENTRIC COORDINATES TO FILL IN OUTRECORD
+
+    return false;
   }
 
   /**

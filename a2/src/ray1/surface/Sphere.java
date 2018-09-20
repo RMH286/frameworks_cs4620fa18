@@ -36,43 +36,43 @@ public class Sphere extends Surface {
    * @return true if the surface intersects the ray
    */
   public boolean intersect(IntersectionRecord outRecord, Ray rayIn) {
-      // TODO#A2: fill in this function.
-      double b = rayIn.direction.dot(rayIn.origin.clone().sub(this.center));
-      double four_ac = (rayIn.direction.dot(rayIn.direction) *
-              rayIn.origin.clone().sub(this.center).dot(rayIn.origin.clone().sub(this.center)) -
-              Math.pow(this.radius, 2));
-      double two_a = rayIn.direction.dot(rayIn.direction);
-      double root = Math.pow(b, 2) - four_ac;
+    // TODO#A2: fill in this function.
+    double b = rayIn.direction.dot(rayIn.origin.clone().sub(this.center));
+    double four_ac = (rayIn.direction.dot(rayIn.direction) *
+        rayIn.origin.clone().sub(this.center).dot(rayIn.origin.clone().sub(this.center)) -
+        Math.pow(this.radius, 2));
+    double two_a = rayIn.direction.dot(rayIn.direction);
+    double root = Math.pow(b, 2) - four_ac;
 
-      if (root < 0) {
-          return false;
+    if (root < 0) {
+      return false;
+    }
+    double t_minus = - b - Math.sqrt(root) / two_a;
+    double t_plus = - b + Math.sqrt(root) / two_a;
+    double t = t_minus;
+    if (t_minus < rayIn.start || rayIn.end < t_minus) {
+      t = t_plus;
+      if (t_plus < rayIn.start || rayIn.end < t_plus) {
+        return false;
       }
-      double t_minus = - b - Math.sqrt(root) / two_a;
-      double t_plus = - b + Math.sqrt(root) / two_a;
-      double t = t_minus;
-      if (t_minus < rayIn.start || rayIn.end < t_minus) {
-          t = t_plus;
-          if (t_plus < rayIn.start || rayIn.end < t_plus) {
-              return false;
-          }
-      }
+    }
 
-      Vector3d location = rayIn.origin.clone().add(rayIn.direction.clone().mul(t));
-      Vector3d normal = location.clone().sub(this.center);
+    Vector3d location = rayIn.origin.clone().add(rayIn.direction.clone().mul(t));
+    Vector3d normal = location.clone().sub(this.center);
 
-      double phi = Math.acos(this.radius / normal.y);
-      double theta = Math.atan(normal.x / normal.z);
-      double u = theta / (2 * Math.PI);
-      double v = 1 - phi / Math.PI;
-      Vector2d uv = new Vector2d(u, v);
+    double phi = Math.acos(this.radius / normal.y);
+    double theta = Math.atan(normal.x / normal.z);
+    double u = theta / (2 * Math.PI);
+    double v = 1 - phi / Math.PI;
+    Vector2d uv = new Vector2d(u, v);
 
-      outRecord.location.set(location);
-      outRecord.normal.set(normal.normalize());
-      outRecord.texCoords.set(uv);
-      outRecord.surface = this;
-      outRecord.t = t;
+    outRecord.location.set(location);
+    outRecord.normal.set(normal.normalize());
+    outRecord.texCoords.set(uv);
+    outRecord.surface = this;
+    outRecord.t = t;
 
-      return true;
+    return true;
   }
 
   /**
