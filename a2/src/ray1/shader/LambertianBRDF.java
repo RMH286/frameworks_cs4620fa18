@@ -12,19 +12,20 @@ import egl.math.Vector3d;
  */
 public class LambertianBRDF extends BRDF {
 
-	LambertianBRDF(Colorf diffuseReflectance, Texture diffuseReflectanceTexture) {
-		super(diffuseReflectance, diffuseReflectanceTexture);
-	}
+  LambertianBRDF(Colorf diffuseReflectance, Texture diffuseReflectanceTexture) {
+    super(diffuseReflectance, diffuseReflectanceTexture);
+  }
 
-	public String toString() {    
-		return "Lambertian BRDF" + super.toString();
-	}
+  public String toString() {
+    return "Lambertian BRDF" + super.toString();
+  }
 
-	@Override
-	public void evalBRDF(Vector3d incoming, Vector3d outgoing, Vector3d surfaceNormal, Vector2 texCoords, Colorf BRDFValue) {
-		// TODO#A2: Evaluate the BRDF value of Lambertian reflectance and set it to variable BRDFValue
-		// Hint: getDiffuseReflectance() method can be helpful.
-
-	}
+  @Override
+  public void evalBRDF(Vector3d incoming, Vector3d outgoing, Vector3d surfaceNormal, Vector2 texCoords, Colorf BRDFValue) {
+    // TODO#A2: Evaluate the BRDF value of Lambertian reflectance and set it to variable BRDFValue
+    // Hint: getDiffuseReflectance() method can be helpful.
+    BRDFValue.set(this.getDiffuseReflectance(texCoords));
+    BRDFValue.div((float)Math.PI);
+  }
 
 }
