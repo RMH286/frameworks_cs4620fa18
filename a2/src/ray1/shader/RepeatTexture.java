@@ -1,6 +1,7 @@
 package ray1.shader;
 
 import ray1.shader.Texture;
+import egl.math.Color;
 import egl.math.Colorf;
 import egl.math.Vector2;
 
@@ -28,8 +29,49 @@ public class RepeatTexture extends Texture {
 		//    and the image object from the Texture class), convert it to a Colorf, and return it.
 		// NOTE: By convention, UV coordinates specify the lower-left corner of the image as the
 		//    origin, but the ImageBuffer class specifies the upper-left corner as the origin.
-			
-		return new Colorf(0.0f, 0.0f, 0.0f);
+		
+		int h = image.getHeight();
+		int w = image.getWidth();
+		double u = (texCoord.get(0));
+		double v = (texCoord.get(1));
+		//System.out.println("u = " + u + "v = " + v);
+		//repeat it brah
+		
+		if(u < -1) {
+			int ui = (int)u;
+			u = (u-ui)*-1;
+		}
+		else if(u<0) {
+			u = u *-1;
+		}
+		else if(u>1) {
+			int ui = (int)u;
+			u = (u-ui);
+		}
+		
+		if(v < -1) {
+			int vi = (int)v;
+			v = (v-vi)*-1;
+		}
+		else if(v<0) {
+			v = v *-1;
+		}
+		else if(v>1) {
+			int vi = (int)v;
+			v = (v-vi);
+		}
+		//System.out.println("u = " + u + "v = " + v);
+		//convert coords
+		int x = (int)((u*w)+.5);
+		int y = (int)((v*h)+.5);
+		//System.out.println("h = " + h + "y = " + y);
+		//System.out.println("w = " + w + "x = " + x);
+		// get texture rbg value (1-y) so that convert from bottom left to top left
+		Color convert = Color.fromIntRGB(image.getRGB(x , (h-y))); 
+		System.out.println("r = " + convert.r() + "g = " + convert.g() + "b = " + convert.b());
+		Colorf texColor = new Colorf((float)convert.r(),(float)convert.g(),(float)convert.b());
+		
+		return texColor;
 	}
 
 }
