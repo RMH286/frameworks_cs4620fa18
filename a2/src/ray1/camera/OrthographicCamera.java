@@ -47,7 +47,7 @@ public class OrthographicCamera extends Camera {
       inV = (inV * this.viewHeight) - (this.viewHeight / 2);
       Vector3d origin = new Vector3d(this.viewPoint.clone().add(this.u.clone().mul(inU)).add(this.v.clone().mul(inV)));
       Vector3d direction = new Vector3d(this.w.clone().negate());
-      outRay.set(origin, direction);
+      outRay.set(origin, direction.normalize());
       outRay.makeOffsetRay();
   }
 

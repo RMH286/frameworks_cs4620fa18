@@ -47,8 +47,8 @@ public class Sphere extends Surface {
     if (root < 0) {
       return false;
     }
-    double t_minus = - b - Math.sqrt(root) / two_a;
-    double t_plus = - b + Math.sqrt(root) / two_a;
+    double t_minus = (- b - Math.sqrt(root)) / two_a;
+    double t_plus = (- b + Math.sqrt(root)) / two_a;
     double t = t_minus;
     if (t_minus < rayIn.start || rayIn.end < t_minus) {
       t = t_plus;
