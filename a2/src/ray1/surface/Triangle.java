@@ -128,6 +128,10 @@ public class Triangle extends Surface {
       Vector2d t1 = t1uw.mul(beta);
       Vector2d t2 = t2uw.mul(gamma);
       texture = t0.add(t1).add(t2);
+      if(Double.isNaN(texture.get(1))) {
+    	  System.out.println("alpha =" + alpha + " beta =" + beta + " gamma =" +gamma);
+      }
+      //System.out.println("texture corrd=" + texture);
     }
     else texture = null;
 

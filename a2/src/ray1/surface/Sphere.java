@@ -60,12 +60,25 @@ public class Sphere extends Surface {
     Vector3d location = rayIn.origin.clone().add(rayIn.direction.clone().mul(t));
     Vector3d normal = location.clone().sub(this.center);
 
-    double phi = Math.acos(this.radius / normal.y);
-    double theta = Math.atan(normal.x / normal.z);
+    double phi = Math.acos(normal.y/this.radius);
+    //double theta = Math.atan(normal.x / normal.z);
+    double theta = Math.atan2(normal.x, normal.z);
+    if (theta < 0.0) {
+        theta += Math.PI*2;
+    }
+    theta += Math.PI;
+    if(theta > Math.PI*2) {
+    	theta -= Math.PI*2;
+    }
+    
     double u = theta / (2 * Math.PI);
     double v = 1 - phi / Math.PI;
     Vector2d uv = new Vector2d(u, v);
-
+    
+    if(Double.isNaN(phi)) {
+    	System.out.println("here");
+    }
+    
     outRecord.location.set(location);
     outRecord.normal.set(normal.normalize());
     outRecord.texCoords.set(uv);

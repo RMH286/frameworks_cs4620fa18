@@ -64,7 +64,7 @@ public abstract class ReflectionShader extends Shader {
 
     Vector3 scale = new Vector3();
 
-    Vector3d zero = new Vector3d().setZero();
+    Vector3 zero = new Vector3().setZero();
 
     Vector3d reflection = new Vector3d();
 
@@ -87,7 +87,6 @@ public abstract class ReflectionShader extends Shader {
       } else {
         tex = null;
       }
-
       brdf.evalBRDF(direction.normalize(), ray.direction.clone().negate().normalize(), record.normal.normalize(), tex, brdfValue);
 
       scale = l.intensity.clone().mul((float)Math.max(record.normal.normalize().dot(direction.normalize()), 0)).div((float)Math.pow(t,  2));

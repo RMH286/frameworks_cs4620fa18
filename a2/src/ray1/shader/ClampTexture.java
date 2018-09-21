@@ -29,19 +29,24 @@ public class ClampTexture extends Texture {
 		//    origin, but the ImageBuffer class specifies the upper-left corner as the origin.
 		
 		//get image height and width
-		int h = image.getHeight();
-		int w = image.getWidth();
+		Colorf texColor = new Colorf(0,0,0);
+		int h = image.getHeight()-1;
+		int w = image.getWidth()-1;
 		double u = (texCoord.get(0));
 		double v = (texCoord.get(1));
+		//System.out.println("u = " + u + " v = " + v);
 		//clamp it brah
 		u = Math.max(Math.min(u, 1), 0);
 		v = Math.max(Math.min(v, 1), 0);
+		System.out.println("u = " + u + " v = " + v);
 		//convert coords
 		int x = (int)((u*w) + .5);
 		int y = (int)((v*h) + .5);
+		//System.out.println("w = " + w + " x = " + x);
+		//System.out.println("h = " + h + " y = " + y);
 		// get texture rbg value (1-y) so that convert from bottom left to top left
-		Color convert = Color.fromIntRGB(image.getRGB(x , (1-y))); 
-		Colorf texColor = new Colorf((float)convert.r(),(float)convert.g(),(float)convert.b());
+		Color convert = Color.fromIntRGB(image.getRGB(x , (h-y))); 
+		texColor.set(convert); 
 		
 		return texColor;
 	}

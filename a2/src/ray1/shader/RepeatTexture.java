@@ -29,12 +29,12 @@ public class RepeatTexture extends Texture {
 		//    and the image object from the Texture class), convert it to a Colorf, and return it.
 		// NOTE: By convention, UV coordinates specify the lower-left corner of the image as the
 		//    origin, but the ImageBuffer class specifies the upper-left corner as the origin.
-		
-		int h = image.getHeight();
-		int w = image.getWidth();
+		Colorf texColor =new Colorf(0,0,0);
+		int h = image.getHeight()-1;
+		int w = image.getWidth()-1;
 		double u = (texCoord.get(0));
 		double v = (texCoord.get(1));
-		//System.out.println("u = " + u + "v = " + v);
+		//System.out.println("u = " + u + " v = " + v);
 		//repeat it brah
 		
 		if(u < -1) {
@@ -66,10 +66,11 @@ public class RepeatTexture extends Texture {
 		int y = (int)((v*h)+.5);
 		//System.out.println("h = " + h + "y = " + y);
 		//System.out.println("w = " + w + "x = " + x);
-		// get texture rbg value (1-y) so that convert from bottom left to top left
+		//get texture rbg value (1-y) so that convert from bottom left to top left
 		Color convert = Color.fromIntRGB(image.getRGB(x , (h-y))); 
-		System.out.println("r = " + convert.r() + "g = " + convert.g() + "b = " + convert.b());
-		Colorf texColor = new Colorf((float)convert.r(),(float)convert.g(),(float)convert.b());
+		//System.out.println("r = " + convert.r() + "g = " + convert.g() + "b = " + convert.b());
+		texColor.set(convert); 
+		
 		
 		return texColor;
 	}
