@@ -24,8 +24,7 @@ public class LambertianBRDF extends BRDF {
   public void evalBRDF(Vector3d incoming, Vector3d outgoing, Vector3d surfaceNormal, Vector2 texCoords, Colorf BRDFValue) {
     // TODO#A2: Evaluate the BRDF value of Lambertian reflectance and set it to variable BRDFValue
     // Hint: getDiffuseReflectance() method can be helpful.
-    BRDFValue.set(this.getDiffuseReflectance(texCoords));
-    BRDFValue.div((float)Math.PI);
+    BRDFValue.set(this.getDiffuseReflectance(texCoords).clone().div((float)Math.PI));
   }
 
 }
