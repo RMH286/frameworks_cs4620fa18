@@ -270,7 +270,7 @@ public class RayTracer {
     if (scene.getFirstIntersection(outRecord, ray)) {
       outRecord.surface.getShader().shade(outColor, scene, ray, outRecord, depth);
     } else {
-      outColor = scene.backColor;
+      outColor.set(scene.getBackColor());
     }
   }
 }
