@@ -2,7 +2,10 @@ package ray1.surface;
 
 import ray1.IntersectionRecord;
 import ray1.Ray;
+import egl.math.Vector2;
+import egl.math.Vector2d;
 import egl.math.Vector3;
+import egl.math.Vector3d;
 import ray1.shader.Shader;
 import ray1.OBJFace;
 
@@ -86,8 +89,48 @@ public class Triangle extends Surface {
     }
 
     // USE BARYCENTRIC COORDINATES TO FILL IN OUTRECORD
-
-    return false;
+    //alpha = 1-beta-gamma to find relationship between intersect 
+    //point to all vertices.
+    double alpha = 1-beta-gamma;
+    
+    //calculate normal
+    Vector3d normal;
+    if(face.hasNormals()) {
+    	Vector3 n0s = this.owner.getMesh().getNormal(face,0);
+    	Vector3 n1s = this.owner.getMesh().getNormal(face,1);
+    	Vector3 n2s = this.owner.getMesh().getNormal(face,2);
+    	Vector3d n0 = new Vector3d(n0s.get(0),n0s.get(1),n0s.get(2));
+    	Vector3d n1 = new Vector3d(n1s.get(0),n1s.get(1),n1s.get(2));
+    	Vector3d n2 = new Vector3d(n2s.get(0),n2s.get(1),n2s.get(2));
+    	//compute intersect normal by adding together weighted normals
+    	normal =  n0.addMultiple(beta,(n1.addMultiple(gamma,n2))).mul(alpha);
+    }
+    else normal = new Vector3d(norm.get(0),norm.get(1),norm.get(2));
+    
+    //calculate Texture value.
+    Vector2d texture;
+    if(face.hasUVs()){
+    	Vector2 t0s = this.owner.getMesh().getUV(face,0);
+    	Vector2 t1s = this.owner.getMesh().getUV(face,1);
+    	Vector2 t2s = this.owner.getMesh().getUV(face,2);
+    	Vector2d t0 = new Vector2d(t0s.get(0),t0s.get(1));
+    	Vector2d t1 = new Vector2d(t1s.get(0),t1s.get(1));
+    	Vector2d t2 = new Vector2d(t2s.get(0),t2s.get(1));
+    	texture = t0.addMultiple(beta,(t1.addMultiple(gamma,t2))).mul(alpha);
+    }
+    else texture = null;
+    
+    //calculate location
+    Vector3d loc = rayIn.origin.addMultiple(t, rayIn.direction);
+    
+    //create outrecord
+    outRecord.location.set(loc);
+    outRecord.normal.set(normal.normalize());
+    outRecord.texCoords.set(texture);
+    outRecord.surface = this;
+    outRecord.t = t;
+    
+    return true;
   }
 
   /**
