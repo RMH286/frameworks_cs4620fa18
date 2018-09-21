@@ -99,11 +99,14 @@ public class Triangle extends Surface {
     	Vector3 n0s = this.owner.getMesh().getNormal(face,0);
     	Vector3 n1s = this.owner.getMesh().getNormal(face,1);
     	Vector3 n2s = this.owner.getMesh().getNormal(face,2);
-    	Vector3d n0 = new Vector3d(n0s.get(0),n0s.get(1),n0s.get(2));
-    	Vector3d n1 = new Vector3d(n1s.get(0),n1s.get(1),n1s.get(2));
-    	Vector3d n2 = new Vector3d(n2s.get(0),n2s.get(1),n2s.get(2));
+    	Vector3d n0uw = new Vector3d(n0s.get(0),n0s.get(1),n0s.get(2));
+    	Vector3d n1uw = new Vector3d(n1s.get(0),n1s.get(1),n1s.get(2));
+    	Vector3d n2uw = new Vector3d(n2s.get(0),n2s.get(1),n2s.get(2));
     	//compute intersect normal by adding together weighted normals
-    	normal =  n0.addMultiple(beta,(n1.addMultiple(gamma,n2))).mul(alpha);
+    	Vector3d n0 = n0uw.mul(alpha);
+    	Vector3d n1 = n1uw.mul(beta);
+    	Vector3d n2 = n2uw.mul(gamma);
+    	normal = n0.add(n1).add(n2);
     }
     else normal = new Vector3d(norm.get(0),norm.get(1),norm.get(2));
     
@@ -113,10 +116,14 @@ public class Triangle extends Surface {
     	Vector2 t0s = this.owner.getMesh().getUV(face,0);
     	Vector2 t1s = this.owner.getMesh().getUV(face,1);
     	Vector2 t2s = this.owner.getMesh().getUV(face,2);
-    	Vector2d t0 = new Vector2d(t0s.get(0),t0s.get(1));
-    	Vector2d t1 = new Vector2d(t1s.get(0),t1s.get(1));
-    	Vector2d t2 = new Vector2d(t2s.get(0),t2s.get(1));
-    	texture = t0.addMultiple(beta,(t1.addMultiple(gamma,t2))).mul(alpha);
+    	Vector2d t0uw = new Vector2d(t0s.get(0),t0s.get(1));
+    	Vector2d t1uw = new Vector2d(t1s.get(0),t1s.get(1));
+    	Vector2d t2uw = new Vector2d(t2s.get(0),t2s.get(1));
+    	Vector2d t0 = t0uw.mul(alpha);
+    	Vector2d t1 = t1uw.mul(beta);
+    	Vector2d t2 = t2uw.mul(gamma);
+    	
+    	texture = t0.add(t1).add(t2);
     }
     else texture = null;
     
