@@ -155,7 +155,7 @@ public class Scene {
         } else {
           intersection = true;
           outRecord.set(tempRecord);
-          tempRay.end = outRecord.t;
+          tempRay.makeOffsetSegment(outRecord.t);
         }
       }
     }

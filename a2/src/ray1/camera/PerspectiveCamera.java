@@ -62,5 +62,6 @@ public class PerspectiveCamera extends Camera {
       Vector3d origin = new Vector3d(this.viewPoint);
       Vector3d direction = new Vector3d(this.w.clone().negate().mul(this.projDistance).add(this.u.clone().mul(inU)).add(this.v.clone().mul(inV)));
       outRay.set(origin, direction);
+      outRay.makeOffsetRay();
   }
 }
