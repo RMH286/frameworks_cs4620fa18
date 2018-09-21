@@ -7,6 +7,7 @@ import egl.math.Vector3d;
 import ray1.IntersectionRecord;
 import ray1.Light;
 import ray1.Ray;
+import ray1.RayTracer;
 import ray1.Scene;
 
 public abstract class ReflectionShader extends Shader {
@@ -63,6 +64,14 @@ public abstract class ReflectionShader extends Shader {
 
     Vector3 scale = new Vector3();
 
+    Vector3d zero = new Vector3d().setZero();
+
+    Vector3d reflection = new Vector3d();
+
+    Ray reflectionRay = new Ray();
+
+    Colorf reflectionColor = new Colorf();
+
     for (Light l : scene.getLights()) {
       origin.set(record.location);
       direction.set(new Vector3d(l.position).sub(record.location));
@@ -84,6 +93,16 @@ public abstract class ReflectionShader extends Shader {
       scale = l.intensity.clone().mul((float)Math.max(record.normal.normalize().dot(direction.normalize()), 0)).div((float)Math.pow(t,  2));
 
       outRadiance.add(brdfValue.mul(scale));
+    }
+
+    if (!this.getMirrorCoefficient().equals(zero)) {
+      reflectionColor.setZero();
+      reflection.set(record.normal.clone().mul(record.normal.dot(ray.direction.clone().negate()))).mul(2).sub(ray.direction.clone().negate());
+      reflectionRay.set(record.location, reflection.normalize());
+      reflectionRay.makeOffsetRay();
+      RayTracer.shadeRay(reflectionColor, scene, reflectionRay, depth+1);
+      reflectionColor.mul(this.getMirrorCoefficient());
+      outRadiance.add(reflectionColor);
     }
   }
 
