@@ -32,8 +32,10 @@ public class TranslationManipulator extends Manipulator {
     //   corner of the screen, and (1, 1) is the top right corner of the screen.
     // TODO(ryan): calculate proper delta
     // TODO: fix projection of mouse pos into world coordinates
-    Vector3 lastWorldPos = viewProjection.mulPos(new Vector3(lastMousePos.x, lastMousePos.y, 0));
-    Vector3 curWorldPos = viewProjection.mulPos(new Vector3(curMousePos.x, curMousePos.y, 0));
+    Vector3 lastWorldPos = new Vector3(lastMousePos.x, lastMousePos.y, 0);
+    viewProjection.mulPos(lastWorldPos);
+    Vector3 curWorldPos = new Vector3(curMousePos.x, curMousePos.y, 0);
+    viewProjection.mulPos(curWorldPos);
 
     Vector3 manipulatorDir = new Vector3(0);
     Vector3 manipulatorOrigin = new Vector3(0);
