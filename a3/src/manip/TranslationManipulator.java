@@ -37,11 +37,13 @@ public class TranslationManipulator extends Manipulator {
     viewProjection.clone().invert().mulPos(lastWorldPosNear);
     viewProjection.clone().invert().mulPos(lastWorldPosFar);
     Vector3 lastWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
+    lastWorldRay.normalize();
     Vector3 curWorldPosNear = new Vector3(curMousePos.x, curMousePos.y, 1);
     Vector3 curWorldPosFar = new Vector3(curMousePos.x, curMousePos.y, -1);
     viewProjection.clone().invert().mulPos(curWorldPosNear);
     viewProjection.clone().invert().mulPos(curWorldPosFar);
     Vector3 curWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
+    curWorldRay.normalize();
 
     Vector3 manipulatorDir = new Vector3(0);
     Vector3 manipulatorOrigin = new Vector3(0);
@@ -49,6 +51,7 @@ public class TranslationManipulator extends Manipulator {
     Vector3 centerNear = viewProjection.clone().invert().mulPos(new Vector3(0, 0, 1));
     Vector3 centerFar = viewProjection.clone().invert().mulPos(new Vector3(0, 0, -1));
     Vector3 imageNormal = centerFar.clone().sub(centerNear);
+    imageNormal.normalize();
 
     Vector3 planeNormal = new Vector3(0);
 
