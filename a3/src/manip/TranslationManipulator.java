@@ -32,15 +32,23 @@ public class TranslationManipulator extends Manipulator {
     //   corner of the screen, and (1, 1) is the top right corner of the screen.
     // TODO(ryan): calculate proper delta
     // TODO: fix projection of mouse pos into world coordinates
-    Vector3 lastWorldPos = new Vector3(lastMousePos.x, lastMousePos.y, 0);
-    viewProjection.mulPos(lastWorldPos);
-    Vector3 curWorldPos = new Vector3(curMousePos.x, curMousePos.y, 0);
-    viewProjection.mulPos(curWorldPos);
+    Vector3 lastWorldPosNear = new Vector3(lastMousePos.x, lastMousePos.y, 1);
+    Vector3 lastWorldPosFar = new Vector3(lastMousePos.x, lastMousePos.y, -1);
+    viewProjection.clone().invert().mulPos(lastWorldPosNear);
+    viewProjection.clone().invert().mulPos(lastWorldPosFar);
+    Vector3 lastWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
+    Vector3 curWorldPosNear = new Vector3(curMousePos.x, curMousePos.y, 1);
+    Vector3 curWorldPosFar = new Vector3(curMousePos.x, curMousePos.y, -1);
+    viewProjection.clone().invert().mulPos(curWorldPosNear);
+    viewProjection.clone().invert().mulPos(curWorldPosFar);
+    Vector3 curWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
 
     Vector3 manipulatorDir = new Vector3(0);
     Vector3 manipulatorOrigin = new Vector3(0);
 
-    Vector3 negZ = new Vector3(0, 0, -1);
+    Vector3 centerNear = viewProjection.clone().invert().mulPos(new Vector3(0, 0, 1));
+    Vector3 centerFar = viewProjection.clone().invert().mulPos(new Vector3(0, 0, -1));
+    Vector3 imageNormal = centerFar.clone().sub(centerNear);
 
     Vector3 planeNormal = new Vector3(0);
 
@@ -56,24 +64,24 @@ public class TranslationManipulator extends Manipulator {
         break;
     }
 
-    viewProjection.mulDir(manipulatorDir);
-    viewProjection.mulPos(manipulatorOrigin);
+    this.getReferencedTransform().mulDir(manipulatorDir);
+    this.getReferencedTransform().mulPos(manipulatorOrigin);
 
     manipulatorDir.normalize();
 
-    planeNormal.set(manipulatorDir.clone().cross(negZ).cross(manipulatorDir));
+    planeNormal.set(manipulatorDir.clone().cross(imageNormal).cross(manipulatorDir));
 
-    float lastT = manipulatorOrigin.dot(planeNormal) / lastWorldPos.dot(planeNormal);
-    float curT = manipulatorOrigin.dot(planeNormal) / curWorldPos.dot(planeNormal);
+    float lastT = manipulatorOrigin.clone().sub(lastWorldPosNear).dot(planeNormal) / lastWorldRay.dot(planeNormal);
+    float curT = manipulatorOrigin.clone().sub(curWorldPosNear).dot(planeNormal) / curWorldRay.dot(planeNormal);
 
-    lastWorldPos.mul(lastT);
-    curWorldPos.mul(curT);
+    lastWorldRay.mul(lastT); //.add(lastWorldPosNear);
+    curWorldRay.mul(curT); //.add(curWorldPosNear);
 
-    lastWorldPos.sub(manipulatorOrigin);
-    curWorldPos.sub(manipulatorOrigin);
+    lastWorldRay.sub(manipulatorOrigin);
+    curWorldRay.sub(manipulatorOrigin);
 
-    lastT = lastWorldPos.dot(manipulatorDir);
-    curT = curWorldPos.dot(manipulatorDir);
+    lastT = lastWorldRay.dot(manipulatorDir);
+    curT = curWorldRay.dot(manipulatorDir);
 
     float delta = (curT - lastT);
     Vector3 v = new Vector3(0);
