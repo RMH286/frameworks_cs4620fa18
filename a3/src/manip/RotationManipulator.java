@@ -48,6 +48,37 @@ public class RotationManipulator extends Manipulator {
 		// Note that the mouse positions are given in coordinates that are normalized to the range [-1, 1]
 		//   for both X and Y. That is, the origin is the center of the screen, (-1,-1) is the bottom left
 		//   corner of the screen, and (1, 1) is the top right corner of the screen.
+		
+		float delta = (float)((curMousePos.x - lastMousePos.x));//just to get it to move
+	    Vector3 v = new Vector3(1);
+	    
+	    switch(this.axis) {
+	      case X:
+	        v.x = delta;
+	        Matrix4 rotx = Matrix4.createRotationX(delta);
+	        this.reference.translation.clone().invert().mulBefore(rotx);
+	        this.reference.rotationX.mulBefore(rotx);
+	        break;
+	      case Y:
+	        v.y = delta;
+	        Matrix4 roty = Matrix4.createRotationY(delta);
+		    Matrix4 med = this.reference.translation.clone()
+			.mulBefore(this.reference.rotationX);
+		    med.invert().mulBefore(roty);
+		    this.reference.rotationY.mulBefore(roty);
+	        break;
+	      case Z:
+	        v.z = delta;
+	        Matrix4 rotz = Matrix4.createRotationZ(delta);
+		    Matrix4 med2 = this.reference.translation.clone()
+			.mulBefore(this.reference.rotationX)
+		    .mulBefore(this.reference.rotationY);
+		    med2.invert().mulBefore(rotz);
+		    this.reference.rotationZ.mulBefore(rotz);
+	        break;
+	    
+	    	
+	    }
 
 	}
 

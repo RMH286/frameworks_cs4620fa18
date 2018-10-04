@@ -76,8 +76,9 @@ public class ScaleManipulator extends Manipulator {
 
 	    planeNormal.set(manipulatorDir.clone().cross(imageNormal).cross(manipulatorDir));
 
-	    float lastT = manipulatorOrigin.clone().sub(lastWorldPosNear).dot(planeNormal) / lastWorldRay.dot(planeNormal);
-	    float curT = manipulatorOrigin.clone().sub(curWorldPosNear).dot(planeNormal) / curWorldRay.dot(planeNormal);
+	    
+	    float lastT = lastWorldPosNear.clone().sub(manipulatorOrigin).dot(planeNormal) / lastWorldRay.dot(planeNormal);
+	    float curT = curWorldPosNear.clone().sub(manipulatorOrigin).dot(planeNormal) / curWorldRay.dot(planeNormal);
 
 	    lastWorldRay.mul(lastT); //.add(lastWorldPosNear);
 	    curWorldRay.mul(curT); //.add(curWorldPosNear);
@@ -88,7 +89,7 @@ public class ScaleManipulator extends Manipulator {
 	    lastT = lastWorldRay.dot(manipulatorDir);
 	    curT = curWorldRay.dot(manipulatorDir);
 
-	    float delta = (curT/lastT);//just to get it to move
+	    float delta = (lastT/curT);//just to get it to move
 	    Vector3 v = new Vector3(1);
 	    switch(this.axis) {
 	      case X:
@@ -108,23 +109,12 @@ public class ScaleManipulator extends Manipulator {
 	    Matrix4 huh = this.reference.translation.clone()
 		.mulBefore(this.reference.rotationX)
 		.mulBefore(this.reference.rotationY)
-		.mulBefore(this.reference.rotationZ)
-		.mulBefore(Matrix4.createScale(1,1,1));
+		.mulBefore(this.reference.rotationZ);
 	    
+	    Matrix4 scale = Matrix4.createScale(v);
+	    huh.invert().mulBefore(scale);
+	    this.reference.scale.mulBefore(scale);
 	    
-	    //.getReferencedTransform().clone().invert().mulDir(v);
-	    huh.invert().mulDir(v);
-	    
-	    System.out.println("");
-	    
-	    Matrix4 scale2 = Matrix4.createScale(v);
-	    
-	    System.out.println(huh);
-	    
-	    this.reference.scale.mulBefore(scale2);
-	    
-	    System.out.println("");
-	    System.out.println(this.reference.scale);
 	}
 
 	@Override
