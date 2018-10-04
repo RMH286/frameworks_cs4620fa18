@@ -49,6 +49,8 @@ public class RotationManipulator extends Manipulator {
 		//   for both X and Y. That is, the origin is the center of the screen, (-1,-1) is the bottom left
 		//   corner of the screen, and (1, 1) is the top right corner of the screen.
 		
+		
+		
 		float delta = (float)((curMousePos.x - lastMousePos.x));//just to get it to move
 	    Vector3 v = new Vector3(1);
 	    
