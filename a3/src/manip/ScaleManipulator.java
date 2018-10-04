@@ -44,7 +44,7 @@ public class ScaleManipulator extends Manipulator {
 	    Vector3 curWorldPosFar = new Vector3(curMousePos.x, curMousePos.y, -1);
 	    viewProjection.clone().invert().mulPos(curWorldPosNear);
 	    viewProjection.clone().invert().mulPos(curWorldPosFar);
-	    Vector3 curWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
+	    Vector3 curWorldRay = curWorldPosFar.clone().sub(curWorldPosNear);
 	    curWorldRay.normalize();
 
 	    Vector3 manipulatorDir = new Vector3(0);
@@ -88,7 +88,7 @@ public class ScaleManipulator extends Manipulator {
 	    lastT = lastWorldRay.dot(manipulatorDir);
 	    curT = curWorldRay.dot(manipulatorDir);
 
-	    float delta = 2*(curT/lastT);//just to get it to move
+	    float delta = (curT/lastT);//just to get it to move
 	    Vector3 v = new Vector3(1);
 	    switch(this.axis) {
 	      case X:
@@ -102,15 +102,24 @@ public class ScaleManipulator extends Manipulator {
 	        break;
 	    }
 	    System.out.println("Next frame:");
-	    System.out.println(reference.scale);
+	    System.out.println(reference.translation);
 	    
-	    this.getReferencedTransform().clone().invert().mulDir(v);
+	    
+	    Matrix4 huh = this.reference.translation.clone()
+		.mulBefore(this.reference.rotationX)
+		.mulBefore(this.reference.rotationY)
+		.mulBefore(this.reference.rotationZ)
+		.mulBefore(Matrix4.createScale(1,1,1));
+	    
+	    
+	    //.getReferencedTransform().clone().invert().mulDir(v);
+	    huh.invert().mulDir(v);
 	    
 	    System.out.println("");
 	    
 	    Matrix4 scale2 = Matrix4.createScale(v);
 	    
-	    System.out.println(scale2);
+	    System.out.println(huh);
 	    
 	    this.reference.scale.mulBefore(scale2);
 	    

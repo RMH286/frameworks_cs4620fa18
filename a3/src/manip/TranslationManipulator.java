@@ -37,13 +37,13 @@ public class TranslationManipulator extends Manipulator {
     viewProjection.clone().invert().mulPos(lastWorldPosNear);
     viewProjection.clone().invert().mulPos(lastWorldPosFar);
     Vector3 lastWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
-    lastWorldRay.normalize();
+    //lastWorldRay.normalize();
     Vector3 curWorldPosNear = new Vector3(curMousePos.x, curMousePos.y, 1);
     Vector3 curWorldPosFar = new Vector3(curMousePos.x, curMousePos.y, -1);
     viewProjection.clone().invert().mulPos(curWorldPosNear);
     viewProjection.clone().invert().mulPos(curWorldPosFar);
-    Vector3 curWorldRay = lastWorldPosFar.clone().sub(lastWorldPosNear);
-    curWorldRay.normalize();
+    Vector3 curWorldRay = curWorldPosFar.clone().sub(curWorldPosNear);
+    //curWorldRay.normalize();
 
     Vector3 manipulatorDir = new Vector3(0);
     Vector3 manipulatorOrigin = new Vector3(0);
@@ -86,7 +86,7 @@ public class TranslationManipulator extends Manipulator {
     lastT = lastWorldRay.dot(manipulatorDir);
     curT = curWorldRay.dot(manipulatorDir);
 
-    float delta = 10*(curT - lastT);
+    float delta = -(curT - lastT);
     Vector3 v = new Vector3(0);
     switch(this.axis) {
       case X:
