@@ -86,7 +86,7 @@ public class TranslationManipulator extends Manipulator {
     lastT = lastWorldRay.dot(manipulatorDir);
     curT = curWorldRay.dot(manipulatorDir);
 
-    float delta = (curT - lastT);
+    float delta = 10*(curT - lastT);
     Vector3 v = new Vector3(0);
     switch(this.axis) {
       case X:
@@ -99,9 +99,8 @@ public class TranslationManipulator extends Manipulator {
         v.z = delta;
         break;
     }
-
     Matrix4 translation = Matrix4.createTranslation(v);
-    this.reference.translation.mulBefore(translation);
+    System.out.println(this.reference.translation.mulBefore(translation));
 
   }
 
