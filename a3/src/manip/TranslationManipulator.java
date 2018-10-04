@@ -101,7 +101,7 @@ public class TranslationManipulator extends Manipulator {
         break;
     }
     Matrix4 translation = Matrix4.createTranslation(v);
-    System.out.println(this.reference.translation.mulBefore(translation));
+    this.reference.translation.mulBefore(translation);
 
   }
 
