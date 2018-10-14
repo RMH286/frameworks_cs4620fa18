@@ -70,10 +70,24 @@
 // attribute vec2 uv;
 
 // TODO#A4: Declare any varyings here.
+varying vec2 vUv;
+varying vec3 vNormal; // normal at the vertex in eye space
+varying vec4 vPosition; // vertex position in eye space
+varying vec3 wo;
+
 
 void main() {
     // TODO#A4: Compute gl_Position, as well as any varyings you need in the fragment shader.
-    gl_Position = vec4(1.0); // placeholder
+    // Calculate point in eye space
+    vPosition = modelViewMatrix * vec4(position, 1.0);
+    // Calculate projected point
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+    // We have to use the inverse transpose of the modelview matrix for the normal
+    vNormal = normalize((normalMatrix * normal).xyz);
+    vUv = uv;
+
+    wo = normalize(-1.0*vPosition.xyz);
 }
         </script>
 <!-----------------------------------------------------------------------------
@@ -102,6 +116,7 @@ varying vec4 vPosition; // fragment position in view coordinates
 uniform sampler2D diffuseTexture;
 
 // TODO#A4: Declare any varyings here. 
+varying vec3 wo;
 
 vec3 to_sRGB(vec3 c) { return pow(c, vec3(1.0/2.2)); }
 vec3 from_sRGB(vec3 c) { return pow(c, vec3(2.2)); }
@@ -179,7 +194,33 @@ float computeG(vec3 N, vec3 H, vec3 L, vec3 V) {
 
 void main() {
     // TODO#A4: Implement the shading here.
-    gl_FragColor = vec4(1.0); // placeholder
+    vec3 n = vNormal;
+    vec3 rp = from_sRGB(texture2D(diffuseTexture, vUv).rgb)/M_PI;
+    vec3 finalColor = vec3(0.0, 0.0, 0.0);
+
+    for (int i = 0; i < NUM_LIGHTS; i++) {
+        vec3 wi = normalize(lightPositions[i] - vPosition.xyz);
+        float r = length(lightPositions[i] - vPosition.xyz);
+        vec3 h = normalize(wi + wo);
+        float da = dot(wi,n);
+        float db = dot(wo,n);
+        float fd = 4.0*sqrt(da*da)*sqrt(db*db);
+        float F = computeF(wi,h);
+        float G = computeG(n,h,wi,wo);
+        float D = computeD(n,h);
+        float fr = (F*G*D)/(fd);
+h
+        if(dot(n,wi) > 0.0){
+            finalColor += ((lightColors[i]/(r*r))*(rp+fr)*dot(n,wi));
+        }
+    }
+    // Only shade if facing the light
+    // Color the back faces an identifiable color
+    if (gl_FrontFacing) {
+        gl_FragColor = vec4(to_sRGB(finalColor * exposure), 1.0); 
+    } else {
+        gl_FragColor = vec4(170.0/255.0, 160.0/255.0, 0.0, 1.0); 
+    }
 }
 
         </script>
