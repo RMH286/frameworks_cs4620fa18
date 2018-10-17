@@ -209,18 +209,13 @@ void main() {
         float G = computeG(n,h,wi,wo);
         float D = computeD(n,h);
         float fr = (F*G*D)/(fd);
-h
+        
         if(dot(n,wi) > 0.0){
             finalColor += ((lightColors[i]/(r*r))*(rp+fr)*dot(n,wi));
         }
     }
-    // Only shade if facing the light
-    // Color the back faces an identifiable color
-    if (gl_FrontFacing) {
-        gl_FragColor = vec4(to_sRGB(finalColor * exposure), 1.0); 
-    } else {
-        gl_FragColor = vec4(170.0/255.0, 160.0/255.0, 0.0, 1.0); 
-    }
+    
+    gl_FragColor = vec4(to_sRGB(finalColor * exposure), 1.0); 
 }
 
         </script>
