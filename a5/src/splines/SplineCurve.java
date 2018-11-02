@@ -184,13 +184,14 @@ public abstract class SplineCurve {
    */
   private void setBeziers() {
     //TODO A5
-
+	this.bezierCurves = new ArrayList<CubicBezier>(); 
     for (int i = 1; i < this.controlPoints.size()-2; i++) {
       this.bezierCurves.add(this.toBezier(this.controlPoints.get(i-1),
                                           this.controlPoints.get(i),
                                           this.controlPoints.get(i+1),
                                           this.controlPoints.get(i+2),
                                           this.epsilon));
+      System.out.println("here");
     }
 
     if (this.isClosed()) {

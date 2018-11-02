@@ -20,7 +20,7 @@ public class CatmullRom extends SplineCurve {
   public CubicBezier toBezier(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3,
       float eps) {
     //TODO A5
-
+	
     Matrix4 mBez = new Matrix4(-1, 3, -3, 1,
                                 3, -6, 3, 0,
                                 -3, 3, 0, 0,
@@ -41,7 +41,6 @@ public class CatmullRom extends SplineCurve {
     Vector2 q1 = new Vector2(v3.y, v4.y);
     Vector2 q2 = new Vector2(v3.z, v4.z);
     Vector2 q3 = new Vector2(v3.w, v4.w);
-
     return new CubicBezier(q0, q1, q2, q3, eps);
   }
 }

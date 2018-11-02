@@ -3,6 +3,7 @@ package splines;
 import java.util.ArrayList;
 
 import egl.math.Vector2;
+import egl.math.Vector3;
 /*
  * Cubic Bezier class for the splines assignment
  */
@@ -49,7 +50,13 @@ public class CubicBezier {
 		this.p2 = new Vector2(p2);
 		this.p3 = new Vector2(p3);
 		
-		tessellate();
+		//for recursion
+		ArrayList<Vector2> cP = new ArrayList<Vector2>();
+		cP.add(p0);
+		cP.add(p1);
+		cP.add(p2);
+		cP.add(p3);
+		tessellate(cP);
 	}
 
     /**
@@ -58,9 +65,83 @@ public class CubicBezier {
      * array self.curvePoints, the tangents into self.curveTangents, and the normals into self.curveNormals.
      * The final point, p3, is not included, because cubic Beziers will be "strung together".
      */
-    private void tessellate() {
+    private void tessellate(ArrayList<Vector2> cP) {
     	 // TODO A5
-    	
+    	 Vector2 p00 = cP.get(0);
+    	 Vector2 p01 = cP.get(1);
+    	 Vector2 p02 = cP.get(2);
+    	 Vector2 p03 = cP.get(3);
+    	 //find angle to determine to recurse or not
+    	 Vector2 a10 = p01.clone().sub(p00).normalize();
+    	 Vector2 a11 = p02.clone().sub(p01).normalize();
+    	 Vector2 a20 = a11;
+    	 Vector2 a21 = p03.clone().sub(p02).normalize();
+    	 float a1 = a10.angle(a11);
+    	 float a2 = a20.angle(a21);
+    	 //check to see if you should recurse
+    	 if((a1<=this.epsilon) && (a2<=this.epsilon)) {
+    		 //baseCase
+    		 //add control points to curve points
+    		 this.curvePoints.add(p00);
+    		 this.curvePoints.add(p01);
+    		 this.curvePoints.add(p02);
+//    		 System.out.println(p00);
+//    		 System.out.println(p01);
+//    		 System.out.println(p02);
+    		 
+    		 //find tangents at points
+    		 Vector2 t00 = p01.clone().sub(p00).normalize();
+    		 Vector2 t01 = p02.clone().sub(p00).normalize();
+    		 Vector2 t02 = p03.clone().sub(p01).normalize();
+    		 //add tangents to list
+    		 this.curveTangents.add(t00);
+    		 this.curveTangents.add(t01);
+    		 this.curveTangents.add(t02);
+    		 //find normals at points
+    		 Vector2 n00 = normal(t00);
+    		 Vector2 n01 = normal(t01);
+    		 Vector2 n02 = normal(t02);
+    		 //add normals to list
+    		 this.curveNormals.add(n00);
+    		 this.curveNormals.add(n01);
+    		 this.curveNormals.add(n02);
+    	 }
+    	 else {
+    		 //recursive case
+    		 //find mid points 
+    		 Vector2 p10 = midpoint(p00,p01);
+    		 Vector2 p11 = midpoint(p01,p02);
+    		 Vector2 p12 = midpoint(p02,p03);
+    		 Vector2 p20 = midpoint(p10,p11);
+    		 Vector2 p21 = midpoint(p11,p12);
+    		 Vector2 p30 = midpoint(p20,p21);
+    	 
+    		 ArrayList<Vector2> cPL = new ArrayList<Vector2>();
+    		 ArrayList<Vector2> cPR = new ArrayList<Vector2>();
+    		 cPL.add(p00);
+    		 cPL.add(p10);
+    		 cPL.add(p20);
+    		 cPL.add(p30);
+    	 
+    		 cPR.add(p30);
+    		 cPR.add(p21);
+    		 cPR.add(p12);
+    		 cPR.add(p03);
+    	 
+    		 tessellate(cPL);
+    		 tessellate(cPR);
+    	 }
+    	 
+    	 
+    }
+    private Vector2 midpoint(Vector2 a, Vector2 b) {
+    	return new Vector2((a.x+b.x)/2,(a.y + b.y)/2);
+    }
+    private Vector2 normal(Vector2 t) {
+    	Vector3 unitZ = new Vector3(0,0,1);
+    	Vector3 tan = new Vector3(t.x,t.y,0);
+    	Vector3 n = tan.clone().cross(unitZ);
+    	return new Vector2(n.x,n.y);
     }
 	
     
