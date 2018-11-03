@@ -184,7 +184,7 @@ public abstract class SplineCurve {
    */
   private void setBeziers() {
     //TODO A5
-	this.bezierCurves = new ArrayList<CubicBezier>(); 
+    this.bezierCurves = new ArrayList<CubicBezier>();
     for (int i = 1; i < this.controlPoints.size()-2; i++) {
       this.bezierCurves.add(this.toBezier(this.controlPoints.get(i-1),
                                           this.controlPoints.get(i),
@@ -245,9 +245,7 @@ public abstract class SplineCurve {
     return max;
   }
 
-
   public abstract CubicBezier toBezier(Vector2 p0, Vector2 p1, Vector2 p2, Vector2 p3, float eps);
-
 
   /**
    * Given a curve that defines the cross section along the axis, fill the three GLBuffer objects appropriately.
@@ -259,91 +257,85 @@ public abstract class SplineCurve {
    */
   public static void build3DRevolution(SplineCurve crossSection, OBJMesh mesh, float scale, float sliceTolerance) {
     //TODO A5
-	  ArrayList<Integer> inOff = new ArrayList<Integer>();
-	  for(int i = 0; i < crossSection.getPoints().size(); i++) {
-			for(float j = 0; j < 2*Math.PI; j+=sliceTolerance) {
-				//rotate by j degrees
-				if(j == 0) {
-					inOff.add(mesh.positions.size());
-				}
-				Matrix4 current = Matrix4.createRotationZ(j);
-				current.mulBefore(Matrix4.createScale(scale));
-				Vector2 p = crossSection.getPoints().get(i);
-				Vector2 n = crossSection.getNormals().get(i);
-				
-				Vector3 position = current.mulPos(new Vector3(0,p.x,p.y));
-				Vector3 normal = Matrix4.createRotationZ(j).mulPos(new Vector3(n.x,n.y,0)).normalize();
-				mesh.positions.add(position);
-				mesh.normals.add(normal);
-			}
-		}
-	for(int i = 0; i < crossSection.getPoints().size(); i++) {
-		for(int j = 0; j < 2*Math.PI/sliceTolerance; j++) {
-			//rotate by j degrees
-			int nextj;
-			int nexti;
-			if((j + 1) >= 2*Math.PI/sliceTolerance) {
-				nextj = 0;
-			}
-			else {
-				nextj = j+1;
-			}
-			if((i + 1) >= crossSection.getPoints().size()) {
-				nexti = 0;
-			}
-			else {
-				nexti = i+1;
-			}
-			
-			int bl;
-			int br;
-			int tl;
-			int tr;
-			
-			int pbl;
-			int pbr;
-			int ptl;
-			int ptr;
-			
-			int nbl;
-			int nbr;
-			int ntl;
-			int ntr;
-			
-			
-			bl = inOff.get(i)+j;
-			br = inOff.get(i)+nextj;
-			tl = inOff.get(nexti)+j;
-			tr = inOff.get(nexti) + nextj;
-			pbl = bl;
-			pbr = br;
-			ptl = tl;
-			ptr = tr;
-			
-			nbl = bl;
-			nbr = br;
-			ntl = tl;
-			ntr = tr;
-			
-			
-			OBJFace face1 = new OBJFace(3, true, true);
-			face1.setVertex(0, pbl,0, nbl);
-            face1.setVertex(1, pbr,0, nbr);
-            face1.setVertex(2, ptl,0, ntl);
-            
-            OBJFace face2 = new OBJFace(3, true, true);
-            face2.setVertex(0, ptl,0, ntl);
-            face2.setVertex(1, pbr,0, nbr);
-            face2.setVertex(2, ptr,0, ntr);
-			
-            mesh.faces.add(face1);
-            mesh.faces.add(face2);
-            
-			//check which way normal is
-			
-		}
-	}
-	
+    ArrayList<Integer> inOff = new ArrayList<Integer>();
+    for(int i = 0; i < crossSection.getPoints().size(); i++) {
+      for(float j = 0; j < 2*Math.PI; j+=sliceTolerance) {
+        //rotate by j degrees
+        if(j == 0) {
+          inOff.add(mesh.positions.size());
+        }
+        Matrix4 current = Matrix4.createRotationZ(j);
+        current.mulBefore(Matrix4.createScale(scale));
+        Vector2 p = crossSection.getPoints().get(i);
+        Vector2 n = crossSection.getNormals().get(i);
 
+        Vector3 position = current.mulPos(new Vector3(0,p.x,p.y));
+        Vector3 normal = Matrix4.createRotationZ(j).mulPos(new Vector3(n.x,n.y,0)).normalize();
+        mesh.positions.add(position);
+        mesh.normals.add(normal);
+      }
+    }
+    for(int i = 0; i < crossSection.getPoints().size(); i++) {
+      for(int j = 0; j < 2*Math.PI/sliceTolerance; j++) {
+        //rotate by j degrees
+        int nextj;
+        int nexti;
+        if((j + 1) >= 2*Math.PI/sliceTolerance) {
+          nextj = 0;
+        } else {
+          nextj = j+1;
+        }
+        if((i + 1) >= crossSection.getPoints().size()) {
+          nexti = 0;
+        } else {
+          nexti = i+1;
+        }
+
+        int bl;
+        int br;
+        int tl;
+        int tr;
+
+        int pbl;
+        int pbr;
+        int ptl;
+        int ptr;
+
+        int nbl;
+        int nbr;
+        int ntl;
+        int ntr;
+
+        bl = inOff.get(i)+j;
+        br = inOff.get(i)+nextj;
+        tl = inOff.get(nexti)+j;
+        tr = inOff.get(nexti) + nextj;
+        pbl = bl;
+        pbr = br;
+        ptl = tl;
+        ptr = tr;
+
+        nbl = bl;
+        nbr = br;
+        ntl = tl;
+        ntr = tr;
+
+        OBJFace face1 = new OBJFace(3, true, true);
+        face1.setVertex(0, pbl,0, nbl);
+        face1.setVertex(1, pbr,0, nbr);
+        face1.setVertex(2, ptl,0, ntl);
+
+        OBJFace face2 = new OBJFace(3, true, true);
+        face2.setVertex(0, ptl,0, ntl);
+        face2.setVertex(1, pbr,0, nbr);
+        face2.setVertex(2, ptr,0, ntr);
+
+        mesh.faces.add(face1);
+        mesh.faces.add(face2);
+
+        //check which way normal is
+      }
+    }
   }
+
 }
