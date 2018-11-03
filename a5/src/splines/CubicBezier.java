@@ -70,6 +70,7 @@ public class CubicBezier {
    */
   private void tessellate(ArrayList<Vector2> cP) {
     // TODO A5
+    times++;
     Vector2 p00 = cP.get(0);
     Vector2 p01 = cP.get(1);
     Vector2 p02 = cP.get(2);
@@ -82,12 +83,14 @@ public class CubicBezier {
     float a1 = a10.angle(a11);
     float a2 = a20.angle(a21);
     //check to see if you should recurse
+    System.out.println(times + "");
     if (((a1<=this.epsilon) && (a2<=this.epsilon)) || times == 10) {
       //baseCase
       //add control points to curve points
       this.curvePoints.add(p00);
       this.curvePoints.add(p01);
       this.curvePoints.add(p02);
+
       //find tangents at points
       Vector2 t00 = p01.clone().sub(p00).normalize();
       Vector2 t01 = p02.clone().sub(p00).normalize();
@@ -106,9 +109,8 @@ public class CubicBezier {
       this.curveNormals.add(n02);
       times = 0;
     } else {
-      times++;
       //recursive case
-      //find mid points
+      //find mid points 
       Vector2 p10 = midpoint(p00,p01);
       Vector2 p11 = midpoint(p01,p02);
       Vector2 p12 = midpoint(p02,p03);
@@ -122,6 +124,7 @@ public class CubicBezier {
       cPL.add(p10);
       cPL.add(p20);
       cPL.add(p30);
+
       cPR.add(p30);
       cPR.add(p21);
       cPR.add(p12);
@@ -130,7 +133,6 @@ public class CubicBezier {
       tessellate(cPL);
       tessellate(cPR);
     }
-
   }
 
   private Vector2 midpoint(Vector2 a, Vector2 b) {
