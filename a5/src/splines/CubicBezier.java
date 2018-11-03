@@ -71,6 +71,7 @@ public class CubicBezier {
      */
     private void tessellate(ArrayList<Vector2> cP) {
     	 // TODO A5
+    	 times++;
     	 Vector2 p00 = cP.get(0);
     	 Vector2 p01 = cP.get(1);
     	 Vector2 p02 = cP.get(2);
@@ -113,7 +114,6 @@ public class CubicBezier {
     		 times = 0;
     	 }
     	 else {
-    		 times++;
     		 //recursive case
     		 //find mid points 
     		 Vector2 p10 = midpoint(p00,p01);
