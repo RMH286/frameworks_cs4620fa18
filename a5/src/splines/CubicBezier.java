@@ -26,7 +26,6 @@ public class CubicBezier {
 	private ArrayList<Vector2> curveTangents;
 	
 	//for recursion
-	private int times;
 	
 	
 	/**
@@ -54,13 +53,12 @@ public class CubicBezier {
 		this.p3 = new Vector2(p3);
 		
 		//for recursion
-		times = 0;
 		ArrayList<Vector2> cP = new ArrayList<Vector2>();
 		cP.add(p0);
 		cP.add(p1);
 		cP.add(p2);
 		cP.add(p3);
-		tessellate(cP);
+		tessellate(cP,0);
 	}
 
     /**
@@ -69,9 +67,8 @@ public class CubicBezier {
      * array self.curvePoints, the tangents into self.curveTangents, and the normals into self.curveNormals.
      * The final point, p3, is not included, because cubic Beziers will be "strung together".
      */
-    private void tessellate(ArrayList<Vector2> cP) {
+    private void tessellate(ArrayList<Vector2> cP,int depth) {
     	 // TODO A5
-    	 times++;
     	 Vector2 p00 = cP.get(0);
     	 Vector2 p01 = cP.get(1);
     	 Vector2 p02 = cP.get(2);
@@ -84,8 +81,8 @@ public class CubicBezier {
     	 float a1 = a10.angle(a11);
     	 float a2 = a20.angle(a21);
     	 //check to see if you should recurse
-    	 System.out.println(times + "");
-    	 if(((a1<=this.epsilon) && (a2<=this.epsilon)) || times == 10) {
+    	 System.out.println(depth + "");
+    	 if(((a1<=this.epsilon) && (a2<=this.epsilon)) || depth == 10) {
     		 //baseCase
     		 //add control points to curve points
     		 this.curvePoints.add(p00);
@@ -111,7 +108,6 @@ public class CubicBezier {
     		 this.curveNormals.add(n00);
     		 this.curveNormals.add(n01);
     		 this.curveNormals.add(n02);
-    		 times = 0;
     	 }
     	 else {
     		 //recursive case
@@ -134,9 +130,9 @@ public class CubicBezier {
     		 cPR.add(p21);
     		 cPR.add(p12);
     		 cPR.add(p03);
-    	 
-    		 tessellate(cPL);
-    		 tessellate(cPR);
+    		
+    		 tessellate(cPL,depth+1);
+    		 tessellate(cPR,depth+1);
     	 }
     	 
     	 
