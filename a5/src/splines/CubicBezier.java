@@ -25,6 +25,9 @@ public class CubicBezier {
 	//The tangent vectors of this bezier
 	private ArrayList<Vector2> curveTangents;
 	
+	//for recursion
+	private int times;
+	
 	
 	/**
 	 * 
@@ -51,6 +54,7 @@ public class CubicBezier {
 		this.p3 = new Vector2(p3);
 		
 		//for recursion
+		times = 0;
 		ArrayList<Vector2> cP = new ArrayList<Vector2>();
 		cP.add(p0);
 		cP.add(p1);
@@ -79,7 +83,8 @@ public class CubicBezier {
     	 float a1 = a10.angle(a11);
     	 float a2 = a20.angle(a21);
     	 //check to see if you should recurse
-    	 if((a1<=this.epsilon) && (a2<=this.epsilon)) {
+    	 System.out.println(times + "");
+    	 if(((a1<=this.epsilon) && (a2<=this.epsilon)) || times == 10) {
     		 //baseCase
     		 //add control points to curve points
     		 this.curvePoints.add(p00);
@@ -105,8 +110,10 @@ public class CubicBezier {
     		 this.curveNormals.add(n00);
     		 this.curveNormals.add(n01);
     		 this.curveNormals.add(n02);
+    		 times = 0;
     	 }
     	 else {
+    		 times++;
     		 //recursive case
     		 //find mid points 
     		 Vector2 p10 = midpoint(p00,p01);
