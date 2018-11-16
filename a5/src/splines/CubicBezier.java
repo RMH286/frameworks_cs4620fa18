@@ -8,8 +8,7 @@ import egl.math.Vector3;
  * Cubic Bezier class for the splines assignment
  */
 
-public class CubicBezier {
-	
+public class CubicBezier {	
 	//This Bezier's control points
 	public Vector2 p0, p1, p2, p3;
 	
@@ -202,4 +201,71 @@ public class CubicBezier {
     	for(Vector2 p : curveNormals) returnList.add(p);
     	return returnList;
     }
+  }
+
+  private Vector2 midpoint(Vector2 a, Vector2 b) {
+    return new Vector2((a.x+b.x)/2,(a.y + b.y)/2);
+  }
+
+  private Vector2 normal(Vector2 t) {
+    Vector3 unitZ = new Vector3(0,0,1);
+    Vector3 tan = new Vector3(t.x,t.y,0);
+    Vector3 n = tan.clone().cross(unitZ);
+    return new Vector2(n.x,n.y);
+  }
+
+  /**
+   * @return The points on this cubic bezier
+   */
+  public ArrayList<Vector2> getPoints() {
+    ArrayList<Vector2> returnList = new ArrayList<Vector2>();
+    for(Vector2 p : curvePoints) returnList.add(p.clone());
+    return returnList;
+  }
+
+  /**
+   * @return The tangents on this cubic bezier
+   */
+  public ArrayList<Vector2> getTangents() {
+    ArrayList<Vector2> returnList = new ArrayList<Vector2>();
+    for(Vector2 p : curveTangents) returnList.add(p.clone());
+    return returnList;
+  }
+
+  /**
+   * @return The normals on this cubic bezier
+   */
+  public ArrayList<Vector2> getNormals() {
+    ArrayList<Vector2> returnList = new ArrayList<Vector2>();
+    for(Vector2 p : curveNormals) returnList.add(p.clone());
+    return returnList;
+  }
+
+  /**
+   * @return The references to points on this cubic bezier
+   */
+  public ArrayList<Vector2> getPointReferences() {
+    ArrayList<Vector2> returnList = new ArrayList<Vector2>();
+    for(Vector2 p : curvePoints) returnList.add(p);
+    return returnList;
+  }
+
+  /**
+   * @return The references to tangents on this cubic bezier
+   */
+  public ArrayList<Vector2> getTangentReferences() {
+    ArrayList<Vector2> returnList = new ArrayList<Vector2>();
+    for(Vector2 p : curveTangents) returnList.add(p);
+    return returnList;
+  }
+
+  /**
+   * @return The references to normals on this cubic bezier
+   */
+  public ArrayList<Vector2> getNormalReferences() {
+    ArrayList<Vector2> returnList = new ArrayList<Vector2>();
+    for(Vector2 p : curveNormals) returnList.add(p);
+    return returnList;
+  }
+
 }
