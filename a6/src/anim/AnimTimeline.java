@@ -150,6 +150,15 @@ public class AnimTimeline {
 
     switch (rotation) {
       case 0:
+    	Vector3 firstAng = eulerDecomp(prevRotation);
+    	Vector3 nextAng = eulerDecomp(nextRotation);
+    	float interpXAng = (t-1)*firstAng.x + (t)*nextAng.x;
+    	float interpYAng = (t-1)*firstAng.y + (t)*nextAng.y;
+    	float interpZAng = (t-1)*firstAng.z + (t)*nextAng.z;
+    	Matrix3 eXR = Matrix3.createRotationX(interpXAng);
+    	Matrix3 eYR = Matrix3.createRotationY(interpYAng);
+    	Matrix3 eZR = Matrix3.createRotationZ(interpZAng);
+    	interpolatedRotation = eZR.mulBefore(eYR.mulBefore(eXR));
         break;
       case 1:
         prevQuat = new Quat(prevRotation);
