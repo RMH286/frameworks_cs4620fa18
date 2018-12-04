@@ -31,21 +31,22 @@ public class PointLightIntegrator extends Integrator {
 	@Override
 	public void shade(Colord outRadiance, Scene scene, Ray ray, IntersectionRecord iRec, int depth) {
 		// TODO#A7: Calculate outRaidance at current shading point.
+		outRadiance.add(new Colord(0,0,0));
 		for(int i = 0; i<scene.getLights().size(); i++) {
-			if(scene.getLights().get(i).pdf(ray) == 1.0) {
+			//if(scene.getLights().get(i).pdf(ray) == 1.0) {
 				PointLight light = (PointLight)scene.getLights().get(i);
-				if(!(isShadowed(scene,iRec.location,light.getPosition()))) {
-					LightSamplingRecord lRec = new LightSamplingRecord();
-					light.sample(lRec, iRec.location);
-					//not sure if I should be inverting directions i think i should
+				LightSamplingRecord lRec = new LightSamplingRecord();
+				light.sample(lRec, iRec.location);
+				if(!(isShadowed(scene,iRec.location,lRec.direction.normalize()))) {
 					Colord cont = new Colord();
-					iRec.surface.getBSDF().eval(lRec.direction.negate(), ray.direction.negate(), iRec.normal, cont);
-					if(lRec.direction.negate().dot(iRec.normal)>0) {
-						outRadiance.add(cont.mul(lRec.direction.negate().dot(iRec.normal)/Math.pow(lRec.distance,2)));
+					iRec.surface.getBSDF().eval(ray.direction.negate().normalize(),lRec.direction.normalize(), iRec.normal.normalize(), cont);
+					if(iRec.normal.normalize().dot(lRec.direction.normalize())>=0) {
+						outRadiance.add(cont.mul((iRec.normal.normalize().dot(lRec.direction.normalize())/Math.pow(lRec.distance,2))).mul(light.getIntensity()));
 					}
-				}
+				//}
 			}
 		}
+		
 	}
 
 	/**
