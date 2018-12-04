@@ -6,6 +6,7 @@ import ray2.IntersectionRecord;
 import ray2.Ray;
 import ray2.Scene;
 import ray2.light.Light;
+import ray2.light.LightSamplingRecord;
 import ray2.light.PointLight;
 import ray2.material.BSDF;
 import ray2.surface.Surface;
@@ -30,7 +31,21 @@ public class PointLightIntegrator extends Integrator {
 	@Override
 	public void shade(Colord outRadiance, Scene scene, Ray ray, IntersectionRecord iRec, int depth) {
 		// TODO#A7: Calculate outRaidance at current shading point.
-		
+		for(int i = 0; i<scene.getLights().size(); i++) {
+			if(scene.getLights().get(i).pdf(ray) == 1.0) {
+				PointLight light = (PointLight)scene.getLights().get(i);
+				if(!(isShadowed(scene,iRec.location,light.getPosition()))) {
+					LightSamplingRecord lRec = new LightSamplingRecord();
+					light.sample(lRec, iRec.location);
+					//not sure if I should be inverting directions i think i should
+					Colord cont = new Colord();
+					iRec.surface.getBSDF().eval(lRec.direction.negate(), ray.direction.negate(), iRec.normal, cont);
+					if(lRec.direction.negate().dot(iRec.normal)>0) {
+						outRadiance.add(cont.mul(lRec.direction.negate().dot(iRec.normal)/Math.pow(lRec.distance,2)));
+					}
+				}
+			}
+		}
 	}
 
 	/**
