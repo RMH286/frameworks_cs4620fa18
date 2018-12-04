@@ -31,21 +31,25 @@ public class PointLightIntegrator extends Integrator {
 	@Override
 	public void shade(Colord outRadiance, Scene scene, Ray ray, IntersectionRecord iRec, int depth) {
 		// TODO#A7: Calculate outRaidance at current shading point.
-		outRadiance.add(new Colord(0,0,0));
+		//outRadiance.add(new Colord(0,0,0));
 		for(int i = 0; i<scene.getLights().size(); i++) {
-			//if(scene.getLights().get(i).pdf(ray) == 1.0) {
+			LightSamplingRecord lRec = new LightSamplingRecord();
+			scene.getLights().get(i).sample(lRec, iRec.location);
+			if(lRec.probability == 1.0) {
 				PointLight light = (PointLight)scene.getLights().get(i);
-				LightSamplingRecord lRec = new LightSamplingRecord();
-				light.sample(lRec, iRec.location);
-				if(!(isShadowed(scene,iRec.location,lRec.direction.normalize()))) {
+				if((isShadowed(scene,iRec.location,light.position))) {
 					Colord cont = new Colord();
-					iRec.surface.getBSDF().eval(ray.direction.negate().normalize(),lRec.direction.normalize(), iRec.normal.normalize(), cont);
+					iRec.surface.getBSDF().eval(ray.direction.negate().normalize(),lRec.direction.normalize(), iRec.normal, cont);
 					if(iRec.normal.normalize().dot(lRec.direction.normalize())>=0) {
-						outRadiance.add(cont.mul((iRec.normal.normalize().dot(lRec.direction.normalize())/Math.pow(lRec.distance,2))).mul(light.getIntensity()));
+						cont.mul((iRec.normal.normalize().dot(lRec.direction.normalize()))).mul(lRec.attenuation).mul(light.getIntensity());
+						cont.toColor();
+						outRadiance.add(cont);
 					}
-				//}
+				}
+				outRadiance.toColor();
 			}
 		}
+		
 		
 	}
 
