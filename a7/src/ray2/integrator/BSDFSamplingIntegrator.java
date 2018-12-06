@@ -1,5 +1,7 @@
 package ray2.integrator;
 
+import java.util.Random;
+
 import egl.math.Colord;
 import egl.math.Vector2d;
 import egl.math.Vector3d;
@@ -8,9 +10,12 @@ import ray2.Ray;
 import ray2.RayTracer;
 import ray2.Scene;
 import ray2.light.Light;
+import ray2.light.LightSamplingRecord;
 import ray2.light.PointLight;
 import ray2.material.BSDF;
 import ray2.material.BSDFSamplingRecord;
+import ray2.material.LambertianBSDF;
+import ray2.material.MicrofacetBSDF;
 import ray2.surface.Surface;
 
 /**
@@ -60,6 +65,83 @@ public class BSDFSamplingIntegrator extends Integrator {
        // look up lighting in that direction and get incident radiance.
        // Before you calculate the reflected radiance, you need to check whether the probability value
        // from bsdf sample is 0.
+		
+		// 0.account for if surface is light
+		if(iRec.surface != null) {
+			if(iRec.surface.getLight()!=null) {
+				Colord cont = new Colord();
+				iRec.surface.getLight().eval(ray, cont);
+				outRadiance.add(cont);
+			}
+		}
+		//1.account for reflected radiance
+		//1.1 sample BSDF
+		BSDFSamplingRecord thisSurface = new BSDFSamplingRecord();
+		thisSurface.dir1 = ray.direction.clone().negate().normalize();
+		thisSurface.normal = iRec.normal.normalize();
+		Colord BSDF = new Colord();
+		Random rand = new Random();
+		double prob = iRec.surface.getBSDF().sample(thisSurface, new Vector2d(rand.nextFloat(), rand.nextFloat()), BSDF);
+		Ray outGoingRay = new Ray();
+		outGoingRay.origin.set(iRec.location);
+		outGoingRay.direction.set(thisSurface.dir2.clone().normalize());
+		outGoingRay.start = .001;
+		IntersectionRecord hitSurface = new IntersectionRecord();
+		///this is always returning false but the ray is correct because it 
+		///shades the environment correctly. But theres no shadow on the floor from 
+		///the ray intersecting with the sphere
+		boolean hitSomething = scene.getFirstIntersection(hitSurface, outGoingRay);
+		//1.2 find source radiance
+		if(prob != 0) {
+			Colord rad = new Colord(0,0,0);
+			if(!hitSomething) {
+				//calculate environment radiance
+				if(scene.getEnvironment() != null) {
+					scene.getEnvironment().eval(outGoingRay.direction.clone().normalize(), rad);
+				}
+			}
+			else {
+				System.out.println("here");
+				//recursive case
+				if(thisSurface.isDiscrete && depth > 0) {
+					RayTracer.shadeRay(rad, scene, outGoingRay, depth-1);
+				}
+				//base case/non-discrete
+				else {
+					if(hitSurface.surface.getLight()!=null) {
+						Ray lightExit = new Ray();
+						lightExit.origin.set(hitSurface.location);
+						lightExit.direction.set(outGoingRay.direction.clone().negate().normalize());
+						hitSurface.surface.getLight().eval(lightExit, rad);
+					}
+				}
+				
+			}
+			//1.3 estimate reflected radiance
+			rad.mul(BSDF);
+			rad.mul(iRec.normal.normalize().dot(outGoingRay.direction.normalize()));
+			rad.mul(1/prob);
+			outRadiance.add(rad);
+		}
+		// 2.account for point sources(sameCode as part A):
+		for (int i = 0; i < scene.getLights().size(); i++) {
+		      if (scene.getLights().get(i) instanceof PointLight) {
+		        PointLight light = (PointLight) scene.getLights().get(i);
+		        LightSamplingRecord lRec = new LightSamplingRecord();
+		        light.sample(lRec, iRec.location);
+		        if (!isShadowed(scene, iRec.location, light.position)) {
+		          Colord cont = new Colord();
+		          iRec.surface.getBSDF().eval(ray.direction.clone().negate().normalize(),
+		              lRec.direction.clone().normalize(),
+		              iRec.normal,
+		              cont);
+		          cont.mul(iRec.normal.normalize().dot(lRec.direction.clone().normalize()));
+		          cont.mul(lRec.attenuation);
+		          cont.mul(light.getIntensity());
+		          outRadiance.add(cont);
+		        }
+		      }
+		}
 		
 	}
 
