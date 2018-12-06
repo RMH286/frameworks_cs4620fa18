@@ -85,7 +85,7 @@ public class BSDFSamplingIntegrator extends Integrator {
 		Ray outGoingRay = new Ray();
 		outGoingRay.origin.set(iRec.location);
 		outGoingRay.direction.set(thisSurface.dir2.clone().normalize());
-		outGoingRay.start = .001;
+		outGoingRay.makeOffsetRay();
 		IntersectionRecord hitSurface = new IntersectionRecord();
 		///this is always returning false but the ray is correct because it 
 		///shades the environment correctly. But theres no shadow on the floor from 
@@ -101,17 +101,17 @@ public class BSDFSamplingIntegrator extends Integrator {
 				}
 			}
 			else {
-				System.out.println("here");
 				//recursive case
-				if(thisSurface.isDiscrete && depth > 0) {
+				if(thisSurface.isDiscrete && depth >= 0) {
 					RayTracer.shadeRay(rad, scene, outGoingRay, depth-1);
+					System.out.println(rad);
 				}
 				//base case/non-discrete
 				else {
 					if(hitSurface.surface.getLight()!=null) {
 						Ray lightExit = new Ray();
 						lightExit.origin.set(hitSurface.location);
-						lightExit.direction.set(outGoingRay.direction.clone().negate().normalize());
+						lightExit.direction.set(outGoingRay.direction.clone().normalize());
 						hitSurface.surface.getLight().eval(lightExit, rad);
 					}
 				}
